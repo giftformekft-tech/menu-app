@@ -216,6 +216,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   font-size: 18px;
   grid-column: 2/3;
   grid-row: 1/2;
+  text-align: center;
 }
 
 .fsm-section__desc {
@@ -223,6 +224,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   font-size: 12px;
   grid-column: 2/3;
   grid-row: 2/3;
+  text-align: center;
 }
 
 .fsm-section__icon {
