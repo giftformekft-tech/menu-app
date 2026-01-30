@@ -80,6 +80,11 @@ class FSM_Admin {
         $links_raw = wp_strip_all_tags( $links_raw );
         $out['extra_links'] = trim( $links_raw );
 
+        // Clear menu cache when settings are saved
+        if ( function_exists( 'fsm_clear_menu_cache' ) ) {
+            fsm_clear_menu_cache();
+        }
+
         return $out;
     }
 
@@ -131,11 +136,31 @@ class FSM_Admin {
 
     public static function page() : void {
         if ( ! current_user_can( 'manage_options' ) ) return;
+
+        // Handle manual cache clear
+        if ( isset( $_POST['fsm_clear_cache'] ) && check_admin_referer( 'fsm_clear_cache_action' ) ) {
+            if ( function_exists( 'fsm_clear_menu_cache' ) ) {
+                fsm_clear_menu_cache();
+            }
+            echo '<div class="notice notice-success"><p>Menü cache törölve!</p></div>';
+        }
+
         echo '<div class="wrap"><h1>Forme Smart Menu</h1>';
         echo '<form method="post" action="options.php">';
         settings_fields( 'fsm_settings' );
         do_settings_sections( 'forme-smart-menu' );
         submit_button();
-        echo '</form></div>';
+        echo '</form>';
+
+        // Manual cache clear button
+        echo '<hr style="margin: 30px 0;">';
+        echo '<h2>Cache kezelés</h2>';
+        echo '<p>Ha a menü nem frissül megfelelően, töröld a cache-t:</p>';
+        echo '<form method="post">';
+        wp_nonce_field( 'fsm_clear_cache_action' );
+        echo '<button type="submit" name="fsm_clear_cache" class="button button-secondary">Menü cache törlése</button>';
+        echo '</form>';
+
+        echo '</div>';
     }
 }

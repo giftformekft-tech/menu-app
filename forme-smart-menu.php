@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Forme Smart Menu
  * Description: Headerben gomb, kattintásra jobbról beúszó (off-canvas) WooCommerce kategória menü. Shortcode: [forme_smart_menu_button]
- * Version: 0.3.4
+ * Version: 0.3.5
  * Author: Forme
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -11,7 +11,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'FSM_VERSION', '0.3.4' );
+define( 'FSM_VERSION', '0.3.5' );
 define( 'FSM_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FSM_URL',  plugin_dir_url( __FILE__ ) );
 
@@ -61,3 +61,19 @@ add_action( 'after_setup_theme', function () {
 add_action( 'wp_footer', function () {
     echo FSM_Renderer::render_drawer_once();
 }, 20 );
+
+// Clear menu cache on plugin upgrade
+add_action( 'upgrader_process_complete', function ( $upgrader, $options ) {
+    if ( $options['action'] === 'update' && $options['type'] === 'plugin' ) {
+        fsm_clear_menu_cache();
+    }
+}, 10, 2 );
+
+// Clear cache helper function
+function fsm_clear_menu_cache() {
+    global $wpdb;
+    $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_fsm_drawer_%' OR option_name LIKE '_transient_timeout_fsm_drawer_%'" );
+}
+
+// Clear cache on plugin activation
+register_activation_hook( __FILE__, 'fsm_clear_menu_cache' );

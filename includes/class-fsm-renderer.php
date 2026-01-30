@@ -194,7 +194,7 @@ class FSM_Renderer {
 
                         <?php if ( ! empty( $rest ) ) : ?>
                             <?php foreach ( $rest as $child ) : ?>
-                                <a class="fsm-chip fsm-chip--extra" hidden href="<?php echo esc_url( get_term_link( $child ) ); ?>">
+                                <a class="fsm-chip fsm-chip--extra" href="<?php echo esc_url( get_term_link( $child ) ); ?>">
                                     <?php echo esc_html( $child->name ); ?>
                                 </a>
                             <?php endforeach; ?>

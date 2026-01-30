@@ -81,7 +81,6 @@
     const isExpanded = chips.classList.contains('is-expanded');
     const willExpand = !isExpanded;
     chips.classList.toggle('is-expanded', willExpand);
-    qsa('.fsm-chip--extra', chips).forEach((chip)=>{ chip.hidden = !willExpand; });
     btn.innerHTML = willExpand ? 'kevesebb <span aria-hidden="true">−</span>' : 'még több <span aria-hidden="true">+</span>';
   }
 
