@@ -188,23 +188,16 @@ class FSM_Renderer {
                         <?php endforeach; ?>
 
                         <?php if ( ! empty( $rest ) ) : ?>
+                            <?php foreach ( $rest as $child ) : ?>
+                                <a class="fsm-chip fsm-chip--extra" href="<?php echo esc_url( get_term_link( $child ) ); ?>">
+                                    <?php echo esc_html( $child->name ); ?>
+                                </a>
+                            <?php endforeach; ?>
                             <button class="fsm-chip fsm-chip--more" type="button" data-fsm-more>
                                 még több <span aria-hidden="true">+</span>
                             </button>
                         <?php endif; ?>
                     </div>
-
-                    <?php if ( ! empty( $rest ) ) : ?>
-                        <div class="fsm-more" hidden>
-                            <div class="fsm-more__grid">
-                                <?php foreach ( $rest as $child ) : ?>
-                                    <a class="fsm-more__item" href="<?php echo esc_url( get_term_link( $child ) ); ?>">
-                                        <?php echo esc_html( $child->name ); ?>
-                                    </a>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
                 </div>
             </section>
             <?php
