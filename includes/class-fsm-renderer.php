@@ -167,8 +167,13 @@ class FSM_Renderer {
             // Skip empty parents to avoid “üres fehér blokkok”
             if ( empty( $children ) ) { continue; }
 
-            $shown = array_slice( $children, 0, $limit );
-            $rest  = array_slice( $children, $limit );
+            $has_more = count( $children ) > $limit;
+            $visible_limit = $limit;
+            if ( $has_more ) {
+                $visible_limit = max( $limit - 1, 0 );
+            }
+            $shown = array_slice( $children, 0, $visible_limit );
+            $rest  = array_slice( $children, $visible_limit );
             $panel_id = 'fsm-panel-' . $parent_id;
 
             ?>
@@ -188,23 +193,16 @@ class FSM_Renderer {
                         <?php endforeach; ?>
 
                         <?php if ( ! empty( $rest ) ) : ?>
+                            <?php foreach ( $rest as $child ) : ?>
+                                <a class="fsm-chip fsm-chip--extra" hidden href="<?php echo esc_url( get_term_link( $child ) ); ?>">
+                                    <?php echo esc_html( $child->name ); ?>
+                                </a>
+                            <?php endforeach; ?>
                             <button class="fsm-chip fsm-chip--more" type="button" data-fsm-more>
                                 még több <span aria-hidden="true">+</span>
                             </button>
                         <?php endif; ?>
                     </div>
-
-                    <?php if ( ! empty( $rest ) ) : ?>
-                        <div class="fsm-more" hidden>
-                            <div class="fsm-more__grid">
-                                <?php foreach ( $rest as $child ) : ?>
-                                    <a class="fsm-more__item" href="<?php echo esc_url( get_term_link( $child ) ); ?>">
-                                        <?php echo esc_html( $child->name ); ?>
-                                    </a>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
                 </div>
             </section>
             <?php

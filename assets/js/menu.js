@@ -76,11 +76,13 @@
   function toggleMore(btn){
     const panel = btn.closest('.fsm-panel');
     if(!panel) return;
-    const more = qs('.fsm-more', panel);
-    if(!more) return;
-    const isHidden = more.hidden;
-    more.hidden = !isHidden;
-    btn.innerHTML = isHidden ? 'kevesebb <span aria-hidden="true">−</span>' : 'még több <span aria-hidden="true">+</span>';
+    const chips = qs('.fsm-chips', panel);
+    if(!chips) return;
+    const isExpanded = chips.classList.contains('is-expanded');
+    const willExpand = !isExpanded;
+    chips.classList.toggle('is-expanded', willExpand);
+    qsa('.fsm-chip--extra', chips).forEach((chip)=>{ chip.hidden = !willExpand; });
+    btn.innerHTML = willExpand ? 'kevesebb <span aria-hidden="true">−</span>' : 'még több <span aria-hidden="true">+</span>';
   }
 
   // global click handler
