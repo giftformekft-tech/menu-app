@@ -208,6 +208,15 @@ body.fsm-desktop-right .fsm-drawer.is-open{ transform:translateX(0); }
   border:2px dashed rgba(0,0,0,0.25);
   background:transparent;
 }
+.fsm-chip--extra{
+  display:none;
+}
+.fsm-chips.is-expanded .fsm-chip--extra{
+  display:flex;
+}
+.fsm-chips.is-expanded .fsm-chip--more{
+  border-style:solid;
+}
 .fsm-more{
   margin-top:12px;
   padding-top:12px;
