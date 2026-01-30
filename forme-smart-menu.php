@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Forme Smart Menu
  * Description: Headerben gomb, kattintásra jobbról beúszó (off-canvas) WooCommerce kategória menü. Shortcode: [forme_smart_menu_button]
- * Version: 0.3.5
+ * Version: 0.4.0
  * Author: Forme
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -11,17 +11,21 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'FSM_VERSION', '0.3.5' );
+define( 'FSM_VERSION', '0.4.0' );
 define( 'FSM_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FSM_URL',  plugin_dir_url( __FILE__ ) );
 
 require_once FSM_PATH . 'includes/class-fsm-settings.php';
 require_once FSM_PATH . 'includes/class-fsm-renderer.php';
 require_once FSM_PATH . 'includes/class-fsm-admin.php';
+require_once FSM_PATH . 'includes/class-fsm-category-meta.php';
 
 add_action( 'init', function () {
     add_shortcode( 'forme_smart_menu_button', array( 'FSM_Renderer', 'shortcode_button' ) );
 } );
+
+FSM_Admin::init();
+FSM_Category_Meta::init();
 
 add_action( 'wp_enqueue_scripts', function () {
     wp_register_style( 'fsm-menu', FSM_URL . 'assets/css/menu.css', array(), FSM_VERSION );
@@ -45,8 +49,6 @@ add_filter( 'body_class', function ( $classes ) {
     $classes[] = 'fsm-desktop-' . $desktop;
     return $classes;
 }, 20 );
-
-FSM_Admin::init();
 
 // Optional Astra integration (menu OFF)
 add_action( 'after_setup_theme', function () {

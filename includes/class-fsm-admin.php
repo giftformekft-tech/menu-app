@@ -31,7 +31,21 @@ class FSM_Admin {
         self::field_text( 'button_label', 'Gomb felirat', 'Kategóriák' );
         self::field_checkbox( 'button_icon_only', 'Csak ikon (felirat nélkül)', 'Mobilon/ikon sávban szebb.' );
         self::field_text( 'primary_color', 'Fő szín (hex)', '#0b6ea8' );
-        self::field_number( 'child_limit', 'Alkategóriák száma (kártyák)', 6, 1, 24 );
+        
+        // Feature 1: Description toggle
+        self::field_checkbox( 'show_descriptions', 'Főkategória leírások megjelenítése', 'Kategória név alatt megjelenik a leírás.' );
+        
+        // Feature 5: Child limits (mobile/desktop)
+        self::field_number( 'child_limit_mobile', 'Alkategóriák száma (mobilon)', 6, 1, 24 );
+        self::field_number( 'child_limit_desktop', 'Alkategóriák száma (PC-n)', 9, 1, 24 );
+        
+        // Feature 3: Grid columns
+        self::field_number( 'grid_columns_mobile', 'Oszlopok száma (mobil)', 2, 1, 3 );
+        self::field_number( 'grid_columns_desktop', 'Oszlopok száma (PC)', 3, 1, 4 );
+        
+        // Feature 4: More button colors
+        self::field_text( 'more_button_bg_color', '"Még több" gomb háttérszín (hex)', 'transparent' );
+        self::field_text( 'more_button_text_color', '"Még több" gomb betűszín (hex)', 'inherit' );
 
         self::field_select( 'drawer_side_mobile', 'Drawer iránya mobilon', array(
             'right' => 'Jobbról',
@@ -57,16 +71,48 @@ class FSM_Admin {
 
         $out['disable_astra_menu'] = ! empty( $input['disable_astra_menu'] ) ? 1 : 0;
         $out['button_icon_only']   = ! empty( $input['button_icon_only'] ) ? 1 : 0;
+        $out['show_descriptions']  = ! empty( $input['show_descriptions'] ) ? 1 : 0;
 
         $out['button_label'] = isset( $input['button_label'] ) ? sanitize_text_field( $input['button_label'] ) : 'Kategóriák';
 
         $primary = isset( $input['primary_color'] ) ? trim( (string) $input['primary_color'] ) : '#0b6ea8';
         $out['primary_color'] = preg_match( '/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/', $primary ) ? $primary : '#0b6ea8';
 
-        $limit = isset( $input['child_limit'] ) ? intval( $input['child_limit'] ) : 6;
-        if ( $limit < 1 ) $limit = 1;
-        if ( $limit > 24 ) $limit = 24;
-        $out['child_limit'] = $limit;
+        // Feature 5: Child limits (mobile/desktop)
+        $limit_mobile = isset( $input['child_limit_mobile'] ) ? intval( $input['child_limit_mobile'] ) : 6;
+        if ( $limit_mobile < 1 ) $limit_mobile = 1;
+        if ( $limit_mobile > 24 ) $limit_mobile = 24;
+        $out['child_limit_mobile'] = $limit_mobile;
+
+        $limit_desktop = isset( $input['child_limit_desktop'] ) ? intval( $input['child_limit_desktop'] ) : 9;
+        if ( $limit_desktop < 1 ) $limit_desktop = 1;
+        if ( $limit_desktop > 24 ) $limit_desktop = 24;
+        $out['child_limit_desktop'] = $limit_desktop;
+
+        // Feature 3: Grid columns
+        $grid_mobile = isset( $input['grid_columns_mobile'] ) ? intval( $input['grid_columns_mobile'] ) : 2;
+        if ( $grid_mobile < 1 ) $grid_mobile = 1;
+        if ( $grid_mobile > 3 ) $grid_mobile = 3;
+        $out['grid_columns_mobile'] = $grid_mobile;
+
+        $grid_desktop = isset( $input['grid_columns_desktop'] ) ? intval( $input['grid_columns_desktop'] ) : 3;
+        if ( $grid_desktop < 1 ) $grid_desktop = 1;
+        if ( $grid_desktop > 4 ) $grid_desktop = 4;
+        $out['grid_columns_desktop'] = $grid_desktop;
+
+        // Feature 4: More button colors
+        $more_bg = isset( $input['more_button_bg_color'] ) ? trim( (string) $input['more_button_bg_color'] ) : 'transparent';
+        $more_text = isset( $input['more_button_text_color'] ) ? trim( (string) $input['more_button_text_color'] ) : 'inherit';
+        
+        // Allow transparent and inherit keywords
+        if ( $more_bg !== 'transparent' && ! preg_match( '/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/', $more_bg ) ) {
+            $more_bg = 'transparent';
+        }
+        if ( $more_text !== 'inherit' && ! preg_match( '/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/', $more_text ) ) {
+            $more_text = 'inherit';
+        }
+        $out['more_button_bg_color'] = $more_bg;
+        $out['more_button_text_color'] = $more_text;
 
         $mobile  = isset( $input['drawer_side_mobile'] ) ? (string) $input['drawer_side_mobile'] : 'right';
         $desktop = isset( $input['drawer_side_desktop'] ) ? (string) $input['drawer_side_desktop'] : 'right';

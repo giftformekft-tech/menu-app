@@ -30,27 +30,49 @@ class FSM_Renderer {
             $primary = '#0b6ea8';
         }
 
-        $limit = FSM_Settings::get_int( 'child_limit', 6 );
+        // Feature 5: Separate limits for mobile/desktop
+        $limit_mobile = FSM_Settings::get_int( 'child_limit_mobile', 6 );
+        $limit_desktop = FSM_Settings::get_int( 'child_limit_desktop', 9 );
+        
+        // Feature 3: Grid columns
+        $grid_mobile = FSM_Settings::get_int( 'grid_columns_mobile', 2 );
+        $grid_desktop = FSM_Settings::get_int( 'grid_columns_desktop', 3 );
+        
+        // Feature 4: More button colors
+        $more_bg = FSM_Settings::get_string( 'more_button_bg_color', 'transparent' );
+        $more_text = FSM_Settings::get_string( 'more_button_text_color', 'inherit' );
 
         // Cache key depends on settings + locale
         $cache_key = 'fsm_drawer_' . md5( wp_json_encode( array(
-            'limit' => $limit,
+            'limit_mobile' => $limit_mobile,
+            'limit_desktop' => $limit_desktop,
             'primary' => $primary,
             'lang'  => function_exists( 'get_locale' ) ? get_locale() : 'na',
+            'show_desc' => FSM_Settings::get_bool( 'show_descriptions', true ),
         ) ) );
 
         $inner = get_transient( $cache_key );
         if ( ! is_string( $inner ) || $inner === '' ) {
-            $inner = self::build_menu_inner( $limit );
+            $inner = self::build_menu_inner( $limit_mobile, $limit_desktop );
             set_transient( $cache_key, $inner, 12 * HOUR_IN_SECONDS );
         }
 
         $links_html = self::build_extra_links_html();
+        
+        // Build inline CSS with all custom properties
+        $inline_style = sprintf(
+            '--fsm-primary: %s; --fsm-grid-mobile: %d; --fsm-grid-desktop: %d; --fsm-more-bg: %s; --fsm-more-color: %s;',
+            esc_attr( $primary ),
+            intval( $grid_mobile ),
+            intval( $grid_desktop ),
+            esc_attr( $more_bg ),
+            esc_attr( $more_text )
+        );
 
         ob_start();
         ?>
         <div class="fsm-overlay" data-fsm-close hidden></div>
-        <aside id="fsm-drawer" class="fsm-drawer" role="dialog" aria-modal="true" aria-label="Kategóriák" hidden style="--fsm-primary: <?php echo esc_attr( $primary ); ?>;">
+        <aside id="fsm-drawer" class="fsm-drawer" role="dialog" aria-modal="true" aria-label="Kategóriák" hidden style="<?php echo $inline_style; ?>">
             <div class="fsm-drawer__head">
                 <div class="fsm-drawer__title">Kategóriák</div>
                 <button type="button" class="fsm-drawer__close" data-fsm-close aria-label="Bezárás">✕</button>
@@ -137,7 +159,7 @@ class FSM_Renderer {
         return ob_get_clean();
     }
 
-    private static function build_menu_inner( int $limit ) : string {
+    private static function build_menu_inner( int $limit_mobile, int $limit_desktop ) : string {
         $parents = get_terms( array(
             'taxonomy'   => 'product_cat',
             'hide_empty' => false,
@@ -149,6 +171,8 @@ class FSM_Renderer {
         if ( is_wp_error( $parents ) || empty( $parents ) ) {
             return '<!-- FSM: no parent categories -->';
         }
+
+        $show_descriptions = FSM_Settings::get_bool( 'show_descriptions', true );
 
         ob_start();
         echo '<div class="fsm-section-list">';
@@ -164,53 +188,86 @@ class FSM_Renderer {
             ) );
             if ( is_wp_error( $children ) ) { $children = array(); }
 
-            // Skip empty parents to avoid “üres fehér blokkok”
+            // Skip empty parents
             if ( empty( $children ) ) { continue; }
 
-            $has_more = count( $children ) > $limit;
-            $visible_limit = $limit;
-            if ( $has_more ) {
-                $visible_limit = max( $limit - 1, 0 );
-            }
-            $shown = array_slice( $children, 0, $visible_limit );
-            $rest  = array_slice( $children, $visible_limit );
             $panel_id = 'fsm-panel-' . $parent_id;
-
+            
+            // Feature 2: Category icon
+            $icon_url = '';
+            if ( class_exists( 'FSM_Category_Meta' ) ) {
+                $icon_url = FSM_Category_Meta::get_category_icon( $parent_id );
+            }
+            
             ?>
             <section class="fsm-section" data-parent-id="<?php echo esc_attr( $parent_id ); ?>">
                 <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
+                    <?php if ( $icon_url ) : ?>
+                        <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+                    <?php endif; ?>
                     <span class="fsm-section__title"><?php echo esc_html( $parent_term->name ); ?></span>
-                    <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
+                    <?php if ( $show_descriptions ) : ?>
+                        <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
+                    <?php endif; ?>
                     <span class="fsm-section__icon" aria-hidden="true">+</span>
                 </button>
 
                 <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
-                    <div class="fsm-chips">
-                        <?php foreach ( $shown as $child ) : ?>
-                            <a class="fsm-chip" href="<?php echo esc_url( get_term_link( $child ) ); ?>">
-                                <?php echo esc_html( $child->name ); ?>
-                            </a>
-                        <?php endforeach; ?>
-
-                        <?php if ( ! empty( $rest ) ) : ?>
-                            <?php foreach ( $rest as $child ) : ?>
-                                <a class="fsm-chip fsm-chip--extra" href="<?php echo esc_url( get_term_link( $child ) ); ?>">
-                                    <?php echo esc_html( $child->name ); ?>
-                                </a>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                        
-                        <?php if ( ! empty( $rest ) ) : ?>
-                            <button class="fsm-chip fsm-chip--more" type="button" data-fsm-more>
-                                még több <span aria-hidden="true">+</span>
-                            </button>
-                        <?php endif; ?>
-                    </div>
+                    <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
                 </div>
             </section>
             <?php
         }
         echo '</div>';
+        return ob_get_clean();
+    }
+
+    private static function render_chips( array $children, int $limit_mobile, int $limit_desktop ) : string {
+        $total = count( $children );
+        $max_limit = max( $limit_mobile, $limit_desktop );
+        
+        // Determine how many cards we need for each variant
+        $has_more_mobile = $total > $limit_mobile;
+        $has_more_desktop = $total > $limit_desktop;
+        
+        $visible_mobile = $has_more_mobile ? max( $limit_mobile - 1, 0 ) : $limit_mobile;
+        $visible_desktop = $has_more_desktop ? max( $limit_desktop - 1, 0 ) : $limit_desktop;
+        
+        ob_start();
+        ?>
+        <div class="fsm-chips">
+            <?php
+            // Render all children with appropriate classes
+            foreach ( $children as $index => $child ) :
+                $classes = array( 'fsm-chip' );
+                
+                // Determine visibility for mobile
+                if ( $index >= $visible_mobile && $has_more_mobile ) {
+                    $classes[] = 'fsm-chip--extra';
+                    $classes[] = 'fsm-chip--mobile-extra';
+                }
+                
+                // Determine visibility for desktop
+                if ( $index >= $visible_desktop && $has_more_desktop ) {
+                    if ( ! in_array( 'fsm-chip--extra', $classes ) ) {
+                        $classes[] = 'fsm-chip--extra';
+                    }
+                    $classes[] = 'fsm-chip--desktop-extra';
+                }
+                
+                ?>
+                <a class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" href="<?php echo esc_url( get_term_link( $child ) ); ?>">
+                    <?php echo esc_html( $child->name ); ?>
+                </a>
+            <?php endforeach; ?>
+            
+            <?php if ( $has_more_mobile || $has_more_desktop ) : ?>
+                <button class="fsm-chip fsm-chip--more" type="button" data-fsm-more>
+                    még több <span aria-hidden="true">+</span>
+                </button>
+            <?php endif; ?>
+        </div>
+        <?php
         return ob_get_clean();
     }
 

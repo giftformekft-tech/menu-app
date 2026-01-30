@@ -1,6 +1,10 @@
-/* Forme Smart Menu v0.3.5 */
+/* Forme Smart Menu v0.4.0 */
 :root {
   --fsm-primary: #0b6ea8;
+  --fsm-grid-mobile: 2;
+  --fsm-grid-desktop: 3;
+  --fsm-more-bg: transparent;
+  --fsm-more-color: inherit;
 }
 
 /* Header button */
@@ -46,7 +50,6 @@
 }
 
 .fsm-drawer {
-  --fsm-primary: var(--fsm-primary);
   position: fixed;
   top: 0;
   right: 0;
@@ -191,30 +194,39 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   background: var(--fsm-primary);
   color: #fff;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr auto;
   grid-template-rows: auto auto;
   gap: 6px 10px;
   align-items: center;
   cursor: pointer;
 }
 
+/* Feature 2: Category icon */
+.fsm-section__icon-img {
+  grid-column: 1/2;
+  grid-row: 1/3;
+  max-width: 32px;
+  max-height: 32px;
+  object-fit: contain;
+}
+
 .fsm-section__title {
   font-weight: 900;
   letter-spacing: 0.3px;
   font-size: 18px;
-  grid-column: 1/2;
+  grid-column: 2/3;
   grid-row: 1/2;
 }
 
 .fsm-section__desc {
   opacity: 0.90;
   font-size: 12px;
-  grid-column: 1/2;
+  grid-column: 2/3;
   grid-row: 2/3;
 }
 
 .fsm-section__icon {
-  grid-column: 2/3;
+  grid-column: 3/4;
   grid-row: 1/3;
   width: 36px;
   height: 36px;
@@ -231,15 +243,33 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   transform: rotate(45deg);
 }
 
+/* If no icon, adjust grid to 2 columns */
+.fsm-section__toggle:not(:has(.fsm-section__icon-img)) {
+  grid-template-columns: 1fr auto;
+}
+
+.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__title {
+  grid-column: 1/2;
+}
+
+.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__desc {
+  grid-column: 1/2;
+}
+
+.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__icon {
+  grid-column: 2/3;
+}
+
 /* Panel */
 .fsm-panel {
   padding: 12px 14px 14px;
   background: #fff;
 }
 
+/* Feature 3: Grid columns (responsive) */
 .fsm-chips {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(var(--fsm-grid-mobile, 2), 1fr);
   gap: 10px;
 }
 
@@ -267,9 +297,11 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   outline-offset: 2px;
 }
 
+/* Feature 4: More button colors */
 .fsm-chip--more {
   border: 2px dashed rgba(0, 0, 0, 0.25);
-  background: transparent;
+  background: var(--fsm-more-bg, transparent);
+  color: var(--fsm-more-color, inherit);
 }
 
 .fsm-chip--extra {
@@ -282,6 +314,23 @@ body.fsm-desktop-right .fsm-drawer.is-open {
 
 .fsm-chips.is-expanded .fsm-chip--more {
   border-style: solid;
+}
+
+/* Feature 5: Responsive card visibility (mobile defaults) */
+@media (max-width: 899px) {
+
+  /* On mobile, show desktop-only extras if they're not also mobile extras */
+  .fsm-chip--desktop-extra:not(.fsm-chip--mobile-extra) {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 900px) {
+
+  /* On desktop, show mobile-only extras if they're not also desktop extras */
+  .fsm-chip--mobile-extra:not(.fsm-chip--desktop-extra) {
+    display: flex !important;
+  }
 }
 
 .fsm-more {
@@ -314,7 +363,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
 /* Desktop */
 @media (min-width: 900px) {
   .fsm-chips {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--fsm-grid-desktop, 3), minmax(0, 1fr));
   }
 
   .fsm-more__grid {
