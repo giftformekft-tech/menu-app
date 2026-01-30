@@ -79,8 +79,10 @@
     const chips = qs('.fsm-chips', panel);
     if(!chips) return;
     const isExpanded = chips.classList.contains('is-expanded');
-    chips.classList.toggle('is-expanded', !isExpanded);
-    btn.innerHTML = !isExpanded ? 'kevesebb <span aria-hidden="true">−</span>' : 'még több <span aria-hidden="true">+</span>';
+    const willExpand = !isExpanded;
+    chips.classList.toggle('is-expanded', willExpand);
+    qsa('.fsm-chip--extra', chips).forEach((chip)=>{ chip.hidden = !willExpand; });
+    btn.innerHTML = willExpand ? 'kevesebb <span aria-hidden="true">−</span>' : 'még több <span aria-hidden="true">+</span>';
   }
 
   // global click handler

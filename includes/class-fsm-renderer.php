@@ -167,13 +167,10 @@ class FSM_Renderer {
             // Skip empty parents to avoid “üres fehér blokkok”
             if ( empty( $children ) ) { continue; }
 
-            $visible_limit = 0;
-            if ( $limit > 0 ) {
-                $visible_limit = $limit;
-                $initial_rest = array_slice( $children, $limit );
-                if ( ! empty( $initial_rest ) ) {
-                    $visible_limit = max( $limit - 1, 0 );
-                }
+            $has_more = count( $children ) > $limit;
+            $visible_limit = $limit;
+            if ( $has_more ) {
+                $visible_limit = max( $limit - 1, 0 );
             }
             $shown = array_slice( $children, 0, $visible_limit );
             $rest  = array_slice( $children, $visible_limit );
@@ -197,7 +194,7 @@ class FSM_Renderer {
 
                         <?php if ( ! empty( $rest ) ) : ?>
                             <?php foreach ( $rest as $child ) : ?>
-                                <a class="fsm-chip fsm-chip--extra" href="<?php echo esc_url( get_term_link( $child ) ); ?>">
+                                <a class="fsm-chip fsm-chip--extra" hidden href="<?php echo esc_url( get_term_link( $child ) ); ?>">
                                     <?php echo esc_html( $child->name ); ?>
                                 </a>
                             <?php endforeach; ?>
