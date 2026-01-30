@@ -198,6 +198,9 @@ class FSM_Renderer {
                                     <?php echo esc_html( $child->name ); ?>
                                 </a>
                             <?php endforeach; ?>
+                        <?php endif; ?>
+                        
+                        <?php if ( ! empty( $rest ) ) : ?>
                             <button class="fsm-chip fsm-chip--more" type="button" data-fsm-more>
                                 még több <span aria-hidden="true">+</span>
                             </button>
