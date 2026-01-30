@@ -167,8 +167,16 @@ class FSM_Renderer {
             // Skip empty parents to avoid “üres fehér blokkok”
             if ( empty( $children ) ) { continue; }
 
-            $shown = array_slice( $children, 0, $limit );
-            $rest  = array_slice( $children, $limit );
+            $visible_limit = 0;
+            if ( $limit > 0 ) {
+                $visible_limit = $limit;
+                $initial_rest = array_slice( $children, $limit );
+                if ( ! empty( $initial_rest ) ) {
+                    $visible_limit = max( $limit - 1, 0 );
+                }
+            }
+            $shown = array_slice( $children, 0, $visible_limit );
+            $rest  = array_slice( $children, $visible_limit );
             $panel_id = 'fsm-panel-' . $parent_id;
 
             ?>
