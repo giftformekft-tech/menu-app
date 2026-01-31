@@ -425,6 +425,22 @@ class FSM_Admin {
         submit_button();
         echo '</form>';
         
+        // Cache management (separate form to avoid nesting)
+        echo '<div id="cache-management-section" class="fsm-admin-section">';
+        echo '<div class="fsm-card">';
+        echo '<div class="fsm-card__header">';
+        echo '<h2 class="fsm-card__title">Cache kezelés</h2>';
+        echo '</div>';
+        echo '<div class="fsm-card__body">';
+        echo '<p>Ha a menü nem frissül megfelelően, töröld a cache-t:</p>';
+        echo '<form method="post" style="margin-top: 15px;">';
+        wp_nonce_field( 'fsm_clear_cache_action' );
+        echo '<button type="submit" name="fsm_clear_cache" class="button button-secondary">Menü cache törlése</button>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        
         // Tab: Custom Sections (separate form to avoid nesting)
         echo '<div id="tab-sections" class="fsm-admin-tab-content">';
         self::render_tab_sections();
@@ -447,20 +463,6 @@ class FSM_Admin {
         
         do_settings_sections( 'forme-smart-menu' );
         
-        echo '</div>';
-        echo '</div>';
-        
-        // Cache management
-        echo '<div class="fsm-card">';
-        echo '<div class="fsm-card__header">';
-        echo '<h2 class="fsm-card__title">Cache kezelés</h2>';
-        echo '</div>';
-        echo '<div class="fsm-card__body">';
-        echo '<p>Ha a menü nem frissül megfelelően, töröld a cache-t:</p>';
-        echo '<form method="post" style="margin-top: 15px;">';
-        wp_nonce_field( 'fsm_clear_cache_action' );
-        echo '<button type="submit" name="fsm_clear_cache" class="button button-secondary">Menü cache törlése</button>';
-        echo '</form>';
         echo '</div>';
         echo '</div>';
     }
