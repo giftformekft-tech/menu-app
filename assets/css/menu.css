@@ -235,7 +235,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   background: var(--fsm-main-bg);
   color: var(--fsm-main-text);
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 32px 1fr auto;
   grid-template-rows: auto auto;
   gap: 6px 10px;
   align-items: center;
@@ -266,24 +266,24 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   object-fit: contain;
 }
 
-.fsm-section__title {
+#fsm-drawer .fsm-section__title {
   font-weight: var(--fsm-main-font-weight);
   letter-spacing: 0.3px;
   font-size: var(--fsm-main-font-size);
   grid-column: 2/3;
   grid-row: 1/2;
-  text-align: center;
-  justify-self: center;
+  text-align: left;
+  justify-self: start;
   align-self: center;
 }
 
-.fsm-section__desc {
+#fsm-drawer .fsm-section__desc {
   opacity: 0.90;
   font-size: 12px;
   grid-column: 2/3;
   grid-row: 2/3;
-  text-align: center;
-  justify-self: center;
+  text-align: left;
+  justify-self: start;
   align-self: center;
 }
 
@@ -306,22 +306,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   transform: rotate(45deg);
 }
 
-/* If no icon, adjust grid to 2 columns */
-.fsm-section__toggle:not(:has(.fsm-section__icon-img)) {
-  grid-template-columns: 1fr auto;
-}
 
-.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__title {
-  grid-column: 1/2;
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__desc {
-  grid-column: 1/2;
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__icon {
-  grid-column: 2/3;
-}
 
 /* When no description: center title vertically and horizontally */
 .fsm-section__toggle:not(:has(.fsm-section__desc)) {
@@ -329,9 +314,9 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   padding: var(--fsm-main-pad-v) var(--fsm-main-pad-h);
 }
 
-.fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__title {
+#fsm-drawer .fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__title {
   grid-row: 1/2;
-  text-align: center;
+  text-align: left;
 }
 
 .fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__icon {
@@ -342,11 +327,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   grid-row: 1/2;
 }
 
-.fsm-section__toggle:not(:has(.fsm-section__desc)):not(:has(.fsm-section__icon-img)) .fsm-section__title {
-  grid-column: 1/2;
-  grid-row: 1/2;
-  text-align: center;
-}
+
 
 
 /* Panel */
