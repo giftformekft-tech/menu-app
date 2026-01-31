@@ -81,11 +81,13 @@ class FSM_Renderer {
             'style_v' => '0.7.0-fix1', // Force new cache
         ) ) );
 
-        $inner = get_transient( $cache_key );
-        if ( ! is_string( $inner ) || $inner === '' ) {
-            $inner = self::build_menu_inner( $limit_mobile, $limit_desktop );
-            set_transient( $cache_key, $inner, 12 * HOUR_IN_SECONDS );
-        }
+        // TEMPORARILY DISABLE CACHE FOR DEBUGGING
+        $inner = self::build_menu_inner( $limit_mobile, $limit_desktop );
+        // $inner = get_transient( $cache_key );
+        // if ( ! is_string( $inner ) || $inner === '' ) {
+        //     $inner = self::build_menu_inner( $limit_mobile, $limit_desktop );
+        //     set_transient( $cache_key, $inner, 12 * HOUR_IN_SECONDS );
+        // }
 
         $links_html = self::build_extra_links_html();
         
