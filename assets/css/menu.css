@@ -222,7 +222,11 @@ body.fsm-desktop-right .fsm-drawer.is-open {
 }
 
 /* Active/expanded state */
-.fsm-section[aria-expanded="true"] .fsm-section__toggle {
+.fsm-section:has(.fsm-section__toggle[aria-expanded="true"]) {
+  border-radius: var(--fsm-main-active-radius);
+}
+
+.fsm-section__toggle[aria-expanded="true"] {
   background: var(--fsm-main-active-bg);
   color: var(--fsm-main-active-text);
 }
@@ -471,3 +475,4 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   .ast-builder-layout-element .fsm-btn {
     width: auto;
   }
+}
