@@ -78,7 +78,7 @@ class FSM_Renderer {
             'primary' => $primary,
             'lang'  => function_exists( 'get_locale' ) ? get_locale() : 'na',
             'show_desc' => FSM_Settings::get_bool( 'show_descriptions', true ),
-            'style_v' => '0.7.1', // Increment when adding new style settings
+            'style_v' => '0.5.0', // Increment when adding new style settings
         ) ) );
 
         $inner = get_transient( $cache_key );
@@ -254,37 +254,6 @@ class FSM_Renderer {
                 'order'      => 'ASC',
             ) );
             if ( is_wp_error( $children ) ) { $children = array(); }
-
-            // Apply featured subcategory priority sorting
-            $featured_config = FSM_Settings::get_all();
-            $featured_data = isset( $featured_config['featured_subcategories'] ) ? $featured_config['featured_subcategories'] : array();
-            
-            if ( ! empty( $featured_data ) && ! empty( $children ) ) {
-                usort( $children, function( $a, $b ) use ( $featured_data ) {
-                    $a_id = $a->term_id;
-                    $b_id = $b->term_id;
-                    
-                    $a_featured = isset( $featured_data[ $a_id ]['featured'] ) && $featured_data[ $a_id ]['featured'];
-                    $b_featured = isset( $featured_data[ $b_id ]['featured'] ) && $featured_data[ $b_id ]['featured'];
-                    
-                    // Featured items come first
-                    if ( $a_featured && ! $b_featured ) return -1;
-                    if ( ! $a_featured && $b_featured ) return 1;
-                    
-                    // If both featured or both not featured, sort by priority
-                    if ( $a_featured && $b_featured ) {
-                        $a_priority = isset( $featured_data[ $a_id ]['priority'] ) ? intval( $featured_data[ $a_id ]['priority'] ) : 50;
-                        $b_priority = isset( $featured_data[ $b_id ]['priority'] ) ? intval( $featured_data[ $b_id ]['priority'] ) : 50;
-                        
-                        if ( $a_priority !== $b_priority ) {
-                            return $a_priority - $b_priority;
-                        }
-                    }
-                    
-                    // Fall back to alphabetical
-                    return strcmp( $a->name, $b->name );
-                } );
-            }
 
             // Skip empty parents
             if ( empty( $children ) ) { continue; }
