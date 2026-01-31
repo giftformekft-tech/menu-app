@@ -81,6 +81,7 @@ class FSM_Custom_Sections {
                 ? array_map( 'intval', $data['subcategories'] ) 
                 : array(),
             'position' => isset( $data['position'] ) ? intval( $data['position'] ) : 0,
+            'default_open' => isset( $data['default_open'] ) ? (bool) $data['default_open'] : false,
             'enabled' => isset( $data['enabled'] ) ? (bool) $data['enabled'] : true,
         );
 
@@ -108,6 +109,7 @@ class FSM_Custom_Sections {
                         ? array_map( 'intval', $data['subcategories'] ) 
                         : $section['subcategories'],
                     'position' => isset( $data['position'] ) ? intval( $data['position'] ) : $section['position'],
+                    'default_open' => isset( $data['default_open'] ) ? (bool) $data['default_open'] : ( isset( $section['default_open'] ) ? $section['default_open'] : false ),
                     'enabled' => isset( $data['enabled'] ) ? (bool) $data['enabled'] : $section['enabled'],
                 );
                 $found = true;

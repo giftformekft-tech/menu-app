@@ -543,6 +543,7 @@ class FSM_Admin {
                 'name' => isset( $_POST['section_name'] ) ? sanitize_text_field( $_POST['section_name'] ) : '',
                 'subcategories' => isset( $_POST['subcategories'] ) ? array_map( 'intval', $_POST['subcategories'] ) : array(),
                 'enabled' => isset( $_POST['section_enabled'] ) ? 1 : 0,
+                'default_open' => isset( $_POST['section_default_open'] ) ? 1 : 0,
                 'position' => isset( $_POST['section_position'] ) ? intval( $_POST['section_position'] ) : 0,
             );
 
@@ -632,6 +633,16 @@ class FSM_Admin {
                                 <td>
                                     <input name="section_position" type="number" id="section_position" value="<?php echo $edit_data ? esc_attr( $edit_data['position'] ) : '0'; ?>" class="small-text">
                                     <p class="description">Sorrend. Az automatikus kategóriák <strong>1000-től</strong> indulnak. <br>Ha eléjük szeretnéd: <strong>0-999</strong>. <br>Ha mögéjük: <strong>2000+</strong>.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Alapértelmezés</th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" name="section_default_open" value="1" <?php checked( $edit_data && isset($edit_data['default_open']) ? $edit_data['default_open'] : false ); ?>>
+                                        Legyen alapból nyitva
+                                    </label>
+                                    <p class="description">Ha bepipálod, a menü megnyitásakor ez a szekció lenyitva indul.</p>
                                 </td>
                             </tr>
                             <tr>

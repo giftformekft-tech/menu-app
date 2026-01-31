@@ -328,9 +328,10 @@ class FSM_Renderer {
         }
 
         $panel_id = 'fsm-panel-custom-' . $section_id;
+        $is_open = ! empty( $section['default_open'] );
         ?>
         <section class="fsm-section" data-custom-section="true" data-section-id="<?php echo esc_attr( $section_id ); ?>">
-            <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
+            <button class="fsm-section__toggle" type="button" aria-expanded="<?php echo $is_open ? 'true' : 'false'; ?>" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
                 <span class="fsm-section__title"><?php echo esc_html( $section_name ); ?></span>
                 <?php if ( $show_descriptions ) : ?>
                     <span class="fsm-section__desc"><?php echo esc_html( count( $children ) . ' alkategória' ); ?></span>
@@ -338,7 +339,7 @@ class FSM_Renderer {
                 <span class="fsm-section__icon" aria-hidden="true">+</span>
             </button>
 
-            <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
+            <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" <?php echo $is_open ? '' : 'hidden'; ?>>
                 <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
             </div>
         </section>
