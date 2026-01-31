@@ -52,7 +52,6 @@ class FSM_Renderer {
         $main_cat_active_bg = FSM_Settings::get_string( 'main_cat_active_bg_color', '#0b6ea8' );
         $main_cat_active_text = FSM_Settings::get_string( 'main_cat_active_text_color', '#ffffff' );
         $main_cat_radius = FSM_Settings::get_int( 'main_cat_border_radius', 14 );
-        $main_cat_active_radius = FSM_Settings::get_int( 'main_cat_active_border_radius', 14 );
         $main_cat_pad_v = FSM_Settings::get_int( 'main_cat_padding_v', 8 );
         $main_cat_pad_h = FSM_Settings::get_int( 'main_cat_padding_h', 14 );
         $main_cat_icon_size = FSM_Settings::get_int( 'main_cat_icon_size', 36 );
@@ -96,7 +95,7 @@ class FSM_Renderer {
             '--fsm-main-bg: %s; --fsm-main-text: %s; --fsm-main-icon-bg: %s; --fsm-main-icon-text: %s; ' .
             '--fsm-main-hover-bg: %s; --fsm-main-hover-text: %s; ' .
             '--fsm-main-active-bg: %s; --fsm-main-active-text: %s; ' .
-            '--fsm-main-radius: %dpx; --fsm-main-active-radius: %dpx; ' .
+            '--fsm-main-radius: %dpx; ' .
             '--fsm-main-pad-v: %dpx; --fsm-main-pad-h: %dpx; ' .
             '--fsm-main-icon-size: %dpx; --fsm-main-icon-radius: %dpx; ' .
             '--fsm-main-font-size: %dpx; --fsm-main-font-weight: %s; ' .
@@ -118,7 +117,6 @@ class FSM_Renderer {
             esc_attr( $main_cat_active_bg ),
             esc_attr( $main_cat_active_text ),
             intval( $main_cat_radius ),
-            intval( $main_cat_active_radius ),
             intval( $main_cat_pad_v ),
             intval( $main_cat_pad_h ),
             intval( $main_cat_icon_size ),

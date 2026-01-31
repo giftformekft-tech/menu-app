@@ -1,4 +1,4 @@
-/* Forme Smart Menu v0.6.0 */
+/* Forme Smart Menu v0.6.1 */
 :root {
   --fsm-primary: #0b6ea8;
   --fsm-grid-mobile: 2;
@@ -11,10 +11,9 @@
   --fsm-main-text: #ffffff;
   --fsm-main-icon-bg: rgba(255, 255, 255, 0.22);
   --fsm-main-icon-text: #ffffff;
-  --fsm-main-hover-bg: rgba(0, 0, 0, 0.1);
-  --fsm-main-hover-text: inherit;
+  --fsm-main-active-bg: #0b6ea8;
+  --fsm-main-active-text: #ffffff;
   --fsm-main-radius: 14px;
-  --fsm-main-pad-v: 8px;
   --fsm-main-pad-h: 14px;
   --fsm-main-icon-size: 36px;
   --fsm-main-icon-radius: 12px;
@@ -220,10 +219,6 @@ body.fsm-desktop-right .fsm-drawer.is-open {
 }
 
 /* Active/expanded state */
-.fsm-section[aria-expanded="true"] {
-  border-radius: var(--fsm-main-active-radius);
-}
-
 .fsm-section[aria-expanded="true"] .fsm-section__toggle {
   background: var(--fsm-main-active-bg);
   color: var(--fsm-main-active-text);

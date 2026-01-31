@@ -193,7 +193,6 @@ class FSM_Admin {
         $out['main_cat_active_text_color'] = self::sanitize_color( $input, 'main_cat_active_text_color', '#ffffff', true );
         
         $out['main_cat_border_radius'] = self::sanitize_number( $input, 'main_cat_border_radius', 14, 0, 30 );
-        $out['main_cat_active_border_radius'] = self::sanitize_number( $input, 'main_cat_active_border_radius', 14, 0, 30 );
         $out['main_cat_padding_v'] = self::sanitize_number( $input, 'main_cat_padding_v', 8, 4, 20 );
         $out['main_cat_padding_h'] = self::sanitize_number( $input, 'main_cat_padding_h', 14, 4, 30 );
         $out['main_cat_icon_size'] = self::sanitize_number( $input, 'main_cat_icon_size', 36, 24, 48 );
@@ -390,7 +389,6 @@ class FSM_Admin {
                 setField('main_cat_active_bg_color', '#0b6ea8');
                 setField('main_cat_active_text_color', '#ffffff');
                 setField('main_cat_border_radius', '14');
-                setField('main_cat_active_border_radius', '14');
                 setField('main_cat_padding_v', '8');
                 setField('main_cat_padding_h', '14');
                 setField('main_cat_icon_size', '36');
@@ -428,7 +426,6 @@ class FSM_Admin {
                 setField('main_cat_active_bg_color', 'rgba(11,110,168,0.12)');
                 setField('main_cat_active_text_color', '#003d5c');
                 setField('main_cat_border_radius', '0');
-                setField('main_cat_active_border_radius', '0');
                 setField('main_cat_padding_v', '12');
                 setField('main_cat_padding_h', '8');
                 setField('main_cat_icon_size', '28');
