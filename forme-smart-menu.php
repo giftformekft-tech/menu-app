@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Forme Smart Menu
  * Description: Headerben gomb, kattintásra jobbról beúszó (off-canvas) WooCommerce kategória menü. Shortcode: [forme_smart_menu_button]
- * Version: 0.4.3
+ * Version: 0.4.5
  * Author: Forme
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -11,7 +11,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'FSM_VERSION', '0.4.3' );
+define( 'FSM_VERSION', '0.4.5' );
 define( 'FSM_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FSM_URL',  plugin_dir_url( __FILE__ ) );
 

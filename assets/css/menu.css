@@ -1,4 +1,4 @@
-/* Forme Smart Menu v0.4.3 */
+/* Forme Smart Menu v0.4.5 */
 :root {
   --fsm-primary: #0b6ea8;
   --fsm-grid-mobile: 2;
@@ -181,7 +181,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
 }
 
 .fsm-section {
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.04);
 }
@@ -309,7 +309,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 10px;
+  padding: 4px 10px;
   border-radius: 14px;
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.12);
