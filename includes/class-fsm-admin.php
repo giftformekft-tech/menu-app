@@ -57,6 +57,58 @@ class FSM_Admin {
             'left'  => 'Balról',
         ), 'right' );
 
+        // New: Main Category Appearance
+        add_settings_section( 'fsm_main_category_style', 'Főkategória megjelenés', function () {
+            echo '<p>Testre szabhatod a főkategória gombok megjelenését (színek, méretek, tipográfia).</p>';
+        }, 'forme-smart-menu' );
+
+        self::field_text( 'main_cat_bg_color', 'Háttérszín (hex)', '#0b6ea8', 'fsm_main_category_style' );
+        self::field_text( 'main_cat_text_color', 'Szövegszín (hex)', '#ffffff', 'fsm_main_category_style' );
+        self::field_text( 'main_cat_icon_bg_color', 'Ikon háttérszín (hex)', 'rgba(255,255,255,0.22)', 'fsm_main_category_style' );
+        self::field_text( 'main_cat_icon_text_color', 'Ikon szövegszín (hex)', '#ffffff', 'fsm_main_category_style' );
+        
+        self::field_number_custom( 'main_cat_border_radius', 'Lekerekítés (px)', 14, 0, 30, 'fsm_main_category_style' );
+        self::field_number_custom( 'main_cat_padding_v', 'Padding függőleges (px)', 8, 4, 20, 'fsm_main_category_style' );
+        self::field_number_custom( 'main_cat_padding_h', 'Padding vízszintes (px)', 14, 4, 30, 'fsm_main_category_style' );
+        self::field_number_custom( 'main_cat_icon_size', 'Ikon méret (px)', 36, 24, 48, 'fsm_main_category_style' );
+        self::field_number_custom( 'main_cat_icon_radius', 'Ikon lekerekítés (px)', 12, 0, 24, 'fsm_main_category_style' );
+        
+        self::field_number_custom( 'main_cat_font_size', 'Betűméret (px)', 18, 14, 24, 'fsm_main_category_style' );
+        self::field_select_custom( 'main_cat_font_weight', 'Betűvastagság', array(
+            '400' => 'Normal (400)',
+            '500' => 'Medium (500)',
+            '600' => 'Semibold (600)',
+            '700' => 'Bold (700)',
+            '800' => 'Extra Bold (800)',
+            '900' => 'Black (900)',
+        ), '900', 'fsm_main_category_style' );
+
+        // New: Subcategory Appearance
+        add_settings_section( 'fsm_sub_category_style', 'Alkategória megjelenés', function () {
+            echo '<p>Testre szabhatod az alkategória kártyák megjelenését (színek, méretek, tipográfia).</p>';
+        }, 'forme-smart-menu' );
+
+        self::field_text( 'chip_bg_color', 'Háttérszín (hex)', '#ffffff', 'fsm_sub_category_style' );
+        self::field_text( 'chip_text_color', 'Szövegszín (hex)', 'inherit', 'fsm_sub_category_style' );
+        self::field_text( 'chip_border_color', 'Border szín (hex)', 'rgba(0,0,0,0.12)', 'fsm_sub_category_style' );
+        self::field_text( 'chip_hover_bg_color', 'Hover háttérszín (hex)', 'rgba(11,110,168,0.06)', 'fsm_sub_category_style' );
+        self::field_text( 'chip_hover_border_color', 'Hover border szín (hex)', '#0b6ea8', 'fsm_sub_category_style' );
+        
+        self::field_number_custom( 'chip_border_radius', 'Lekerekítés (px)', 14, 0, 20, 'fsm_sub_category_style' );
+        self::field_number_custom( 'chip_padding_v', 'Padding függőleges (px)', 4, 2, 16, 'fsm_sub_category_style' );
+        self::field_number_custom( 'chip_padding_h', 'Padding vízszintes (px)', 10, 4, 20, 'fsm_sub_category_style' );
+        self::field_number_custom( 'chip_border_width', 'Border vastagság (px)', 1, 0, 3, 'fsm_sub_category_style' );
+        
+        self::field_number_custom( 'chip_font_size', 'Betűméret (px)', 14, 12, 18, 'fsm_sub_category_style' );
+        self::field_select_custom( 'chip_font_weight', 'Betűvastagság', array(
+            '400' => 'Normal (400)',
+            '500' => 'Medium (500)',
+            '600' => 'Semibold (600)',
+            '700' => 'Bold (700)',
+            '800' => 'Extra Bold (800)',
+            '900' => 'Black (900)',
+        ), '800', 'fsm_sub_category_style' );
+
         add_settings_section( 'fsm_links', 'Drawer alján: információs linkek', function () {
             echo '<p>Itt tudsz a kategóriák alatt megjelenő oldallinkeket megadni (pl. Rólunk, Kapcsolat, GYIK). Egy sor = egy link. Formátum: <code>Felirat | URL</code>. Példa: <code>Rólunk | /rolunk/</code></p>';
         }, 'forme-smart-menu' );
@@ -126,12 +178,76 @@ class FSM_Admin {
         $links_raw = wp_strip_all_tags( $links_raw );
         $out['extra_links'] = trim( $links_raw );
 
+        // New: Main Category Styling
+        $out['main_cat_bg_color'] = self::sanitize_color( $input, 'main_cat_bg_color', '#0b6ea8', true );
+        $out['main_cat_text_color'] = self::sanitize_color( $input, 'main_cat_text_color', '#ffffff', true );
+        $out['main_cat_icon_bg_color'] = self::sanitize_color( $input, 'main_cat_icon_bg_color', 'rgba(255,255,255,0.22)', true );
+        $out['main_cat_icon_text_color'] = self::sanitize_color( $input, 'main_cat_icon_text_color', '#ffffff', true );
+        
+        $out['main_cat_border_radius'] = self::sanitize_number( $input, 'main_cat_border_radius', 14, 0, 30 );
+        $out['main_cat_padding_v'] = self::sanitize_number( $input, 'main_cat_padding_v', 8, 4, 20 );
+        $out['main_cat_padding_h'] = self::sanitize_number( $input, 'main_cat_padding_h', 14, 4, 30 );
+        $out['main_cat_icon_size'] = self::sanitize_number( $input, 'main_cat_icon_size', 36, 24, 48 );
+        $out['main_cat_icon_radius'] = self::sanitize_number( $input, 'main_cat_icon_radius', 12, 0, 24 );
+        
+        $out['main_cat_font_size'] = self::sanitize_number( $input, 'main_cat_font_size', 18, 14, 24 );
+        $out['main_cat_font_weight'] = self::sanitize_font_weight( $input, 'main_cat_font_weight', '900' );
+
+        // New: Subcategory Styling
+        $out['chip_bg_color'] = self::sanitize_color( $input, 'chip_bg_color', '#ffffff', true );
+        $out['chip_text_color'] = self::sanitize_color( $input, 'chip_text_color', 'inherit', true );
+        $out['chip_border_color'] = self::sanitize_color( $input, 'chip_border_color', 'rgba(0,0,0,0.12)', true );
+        $out['chip_hover_bg_color'] = self::sanitize_color( $input, 'chip_hover_bg_color', 'rgba(11,110,168,0.06)', true );
+        $out['chip_hover_border_color'] = self::sanitize_color( $input, 'chip_hover_border_color', '#0b6ea8', true );
+        
+        $out['chip_border_radius'] = self::sanitize_number( $input, 'chip_border_radius', 14, 0, 20 );
+        $out['chip_padding_v'] = self::sanitize_number( $input, 'chip_padding_v', 4, 2, 16 );
+        $out['chip_padding_h'] = self::sanitize_number( $input, 'chip_padding_h', 10, 4, 20 );
+        $out['chip_border_width'] = self::sanitize_number( $input, 'chip_border_width', 1, 0, 3 );
+        
+        $out['chip_font_size'] = self::sanitize_number( $input, 'chip_font_size', 14, 12, 18 );
+        $out['chip_font_weight'] = self::sanitize_font_weight( $input, 'chip_font_weight', '800' );
+
         // Clear menu cache when settings are saved
         if ( function_exists( 'fsm_clear_menu_cache' ) ) {
             fsm_clear_menu_cache();
         }
 
         return $out;
+    }
+
+    private static function sanitize_color( array $input, string $key, string $default, bool $allow_rgba = false ) : string {
+        $value = isset( $input[ $key ] ) ? trim( (string) $input[ $key ] ) : $default;
+        
+        // Allow inherit and transparent keywords
+        if ( in_array( $value, array( 'inherit', 'transparent' ), true ) ) {
+            return $value;
+        }
+        
+        // Allow rgba() format if enabled
+        if ( $allow_rgba && preg_match( '/^rgba?\s*\(/', $value ) ) {
+            return $value;
+        }
+        
+        // Validate hex color
+        if ( preg_match( '/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/', $value ) ) {
+            return $value;
+        }
+        
+        return $default;
+    }
+
+    private static function sanitize_number( array $input, string $key, int $default, int $min, int $max ) : int {
+        $value = isset( $input[ $key ] ) ? intval( $input[ $key ] ) : $default;
+        if ( $value < $min ) $value = $min;
+        if ( $value > $max ) $value = $max;
+        return $value;
+    }
+
+    private static function sanitize_font_weight( array $input, string $key, string $default ) : string {
+        $value = isset( $input[ $key ] ) ? (string) $input[ $key ] : $default;
+        $allowed = array( '400', '500', '600', '700', '800', '900' );
+        return in_array( $value, $allowed, true ) ? $value : $default;
     }
 
     private static function field_checkbox( string $key, string $label, string $desc = '' ) : void {
@@ -178,6 +294,26 @@ class FSM_Admin {
             }
             echo '</select>';
         }, 'forme-smart-menu', 'fsm_main' );
+    }
+
+    private static function field_number_custom( string $key, string $label, int $default, int $min, int $max, string $section ) : void {
+        add_settings_field( $key, esc_html( $label ), function () use ( $key, $default, $min, $max ) {
+            $all = FSM_Settings::get_all();
+            $val = isset( $all[ $key ] ) ? intval( $all[ $key ] ) : $default;
+            echo '<input type="number" name="' . esc_attr( FSM_Settings::OPTION_KEY ) . '[' . esc_attr( $key ) . ']" value="' . esc_attr( $val ) . '" min="' . esc_attr( $min ) . '" max="' . esc_attr( $max ) . '" />';
+        }, 'forme-smart-menu', $section );
+    }
+
+    private static function field_select_custom( string $key, string $label, array $choices, string $default, string $section ) : void {
+        add_settings_field( $key, esc_html( $label ), function () use ( $key, $choices, $default ) {
+            $all = FSM_Settings::get_all();
+            $val = isset( $all[ $key ] ) ? (string) $all[ $key ] : $default;
+            echo '<select name="' . esc_attr( FSM_Settings::OPTION_KEY ) . '[' . esc_attr( $key ) . ']">';
+            foreach ( $choices as $k => $v ) {
+                echo '<option value="' . esc_attr( $k ) . '" ' . selected( $val, (string) $k, false ) . '>' . esc_html( $v ) . '</option>';
+            }
+            echo '</select>';
+        }, 'forme-smart-menu', $section );
     }
 
     public static function page() : void {

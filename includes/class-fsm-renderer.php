@@ -42,6 +42,31 @@ class FSM_Renderer {
         $more_bg = FSM_Settings::get_string( 'more_button_bg_color', 'transparent' );
         $more_text = FSM_Settings::get_string( 'more_button_text_color', 'inherit' );
 
+        // New: All customizable styling settings
+        $main_cat_bg = FSM_Settings::get_string( 'main_cat_bg_color', '#0b6ea8' );
+        $main_cat_text = FSM_Settings::get_string( 'main_cat_text_color', '#ffffff' );
+        $main_cat_icon_bg = FSM_Settings::get_string( 'main_cat_icon_bg_color', 'rgba(255,255,255,0.22)' );
+        $main_cat_icon_text = FSM_Settings::get_string( 'main_cat_icon_text_color', '#ffffff' );
+        $main_cat_radius = FSM_Settings::get_int( 'main_cat_border_radius', 14 );
+        $main_cat_pad_v = FSM_Settings::get_int( 'main_cat_padding_v', 8 );
+        $main_cat_pad_h = FSM_Settings::get_int( 'main_cat_padding_h', 14 );
+        $main_cat_icon_size = FSM_Settings::get_int( 'main_cat_icon_size', 36 );
+        $main_cat_icon_radius = FSM_Settings::get_int( 'main_cat_icon_radius', 12 );
+        $main_cat_font_size = FSM_Settings::get_int( 'main_cat_font_size', 18 );
+        $main_cat_font_weight = FSM_Settings::get_string( 'main_cat_font_weight', '900' );
+
+        $chip_bg = FSM_Settings::get_string( 'chip_bg_color', '#ffffff' );
+        $chip_text = FSM_Settings::get_string( 'chip_text_color', 'inherit' );
+        $chip_border = FSM_Settings::get_string( 'chip_border_color', 'rgba(0,0,0,0.12)' );
+        $chip_hover_bg = FSM_Settings::get_string( 'chip_hover_bg_color', 'rgba(11,110,168,0.06)' );
+        $chip_hover_border = FSM_Settings::get_string( 'chip_hover_border_color', '#0b6ea8' );
+        $chip_radius = FSM_Settings::get_int( 'chip_border_radius', 14 );
+        $chip_pad_v = FSM_Settings::get_int( 'chip_padding_v', 4 );
+        $chip_pad_h = FSM_Settings::get_int( 'chip_padding_h', 10 );
+        $chip_border_width = FSM_Settings::get_int( 'chip_border_width', 1 );
+        $chip_font_size = FSM_Settings::get_int( 'chip_font_size', 14 );
+        $chip_font_weight = FSM_Settings::get_string( 'chip_font_weight', '800' );
+
         // Cache key depends on settings + locale
         $cache_key = 'fsm_drawer_' . md5( wp_json_encode( array(
             'limit_mobile' => $limit_mobile,
@@ -49,6 +74,7 @@ class FSM_Renderer {
             'primary' => $primary,
             'lang'  => function_exists( 'get_locale' ) ? get_locale() : 'na',
             'show_desc' => FSM_Settings::get_bool( 'show_descriptions', true ),
+            'style_v' => '0.5.0', // Increment when adding new style settings
         ) ) );
 
         $inner = get_transient( $cache_key );
@@ -61,12 +87,42 @@ class FSM_Renderer {
         
         // Build inline CSS with all custom properties
         $inline_style = sprintf(
-            '--fsm-primary: %s; --fsm-grid-mobile: %d; --fsm-grid-desktop: %d; --fsm-more-bg: %s; --fsm-more-color: %s;',
+            '--fsm-primary: %s; --fsm-grid-mobile: %d; --fsm-grid-desktop: %d; --fsm-more-bg: %s; --fsm-more-color: %s; ' .
+            '--fsm-main-bg: %s; --fsm-main-text: %s; --fsm-main-icon-bg: %s; --fsm-main-icon-text: %s; ' .
+            '--fsm-main-radius: %dpx; --fsm-main-pad-v: %dpx; --fsm-main-pad-h: %dpx; ' .
+            '--fsm-main-icon-size: %dpx; --fsm-main-icon-radius: %dpx; ' .
+            '--fsm-main-font-size: %dpx; --fsm-main-font-weight: %s; ' .
+            '--fsm-chip-bg: %s; --fsm-chip-text: %s; --fsm-chip-border: %s; ' .
+            '--fsm-chip-hover-bg: %s; --fsm-chip-hover-border: %s; ' .
+            '--fsm-chip-radius: %dpx; --fsm-chip-pad-v: %dpx; --fsm-chip-pad-h: %dpx; ' .
+            '--fsm-chip-border-width: %dpx; --fsm-chip-font-size: %dpx; --fsm-chip-font-weight: %s;',
             esc_attr( $primary ),
             intval( $grid_mobile ),
             intval( $grid_desktop ),
             esc_attr( $more_bg ),
-            esc_attr( $more_text )
+            esc_attr( $more_text ),
+            esc_attr( $main_cat_bg ),
+            esc_attr( $main_cat_text ),
+            esc_attr( $main_cat_icon_bg ),
+            esc_attr( $main_cat_icon_text ),
+            intval( $main_cat_radius ),
+            intval( $main_cat_pad_v ),
+            intval( $main_cat_pad_h ),
+            intval( $main_cat_icon_size ),
+            intval( $main_cat_icon_radius ),
+            intval( $main_cat_font_size ),
+            esc_attr( $main_cat_font_weight ),
+            esc_attr( $chip_bg ),
+            esc_attr( $chip_text ),
+            esc_attr( $chip_border ),
+            esc_attr( $chip_hover_bg ),
+            esc_attr( $chip_hover_border ),
+            intval( $chip_radius ),
+            intval( $chip_pad_v ),
+            intval( $chip_pad_h ),
+            intval( $chip_border_width ),
+            intval( $chip_font_size ),
+            esc_attr( $chip_font_weight )
         );
 
         ob_start();
