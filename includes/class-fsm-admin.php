@@ -404,16 +404,16 @@ class FSM_Admin {
             document.getElementById('fsm-preset-minimal')?.addEventListener('click', function() {
                 if (!confirm('Biztosan felülírod az összes stílus beállítást a Minimális stílussal?')) return;
                 
-                // Main category - minimal (light blue bg, dark text)
-                setField('main_cat_bg_color', 'rgba(11,110,168,0.05)');
+                // Main category - minimal (NO background, just content)
+                setField('main_cat_bg_color', 'transparent');
                 setField('main_cat_text_color', '#003d5c');
                 setField('main_cat_icon_bg_color', 'transparent');
                 setField('main_cat_icon_text_color', '#003d5c');
-                setField('main_cat_border_radius', '6');
-                setField('main_cat_padding_v', '10');
-                setField('main_cat_padding_h', '14');
-                setField('main_cat_icon_size', '32');
-                setField('main_cat_icon_radius', '6');
+                setField('main_cat_border_radius', '0');
+                setField('main_cat_padding_v', '12');
+                setField('main_cat_padding_h', '8');
+                setField('main_cat_icon_size', '28');
+                setField('main_cat_icon_radius', '0');
                 setField('main_cat_font_size', '16');
                 setField('main_cat_font_weight', '700');
                 
