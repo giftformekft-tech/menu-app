@@ -68,8 +68,11 @@ class FSM_Admin {
         self::field_text( 'main_cat_icon_text_color', 'Ikon szövegszín (hex)', '#ffffff', 'fsm_main_category_style' );
         self::field_text( 'main_cat_hover_bg_color', 'Hover háttérszín (hex)', 'rgba(0,0,0,0.1)', 'fsm_main_category_style' );
         self::field_text( 'main_cat_hover_text_color', 'Hover szövegszín (hex)', 'inherit', 'fsm_main_category_style' );
+        self::field_text( 'main_cat_active_bg_color', 'Kijelölt háttérszín (hex)', '#0b6ea8', 'fsm_main_category_style' );
+        self::field_text( 'main_cat_active_text_color', 'Kijelölt szövegszín (hex)', '#ffffff', 'fsm_main_category_style' );
         
         self::field_number_custom( 'main_cat_border_radius', 'Lekerekítés (px)', 14, 0, 30, 'fsm_main_category_style' );
+        self::field_number_custom( 'main_cat_active_border_radius', 'Kijelölt lekerekítés (px)', 14, 0, 30, 'fsm_main_category_style' );
         self::field_number_custom( 'main_cat_padding_v', 'Padding függőleges (px)', 8, 4, 20, 'fsm_main_category_style' );
         self::field_number_custom( 'main_cat_padding_h', 'Padding vízszintes (px)', 14, 4, 30, 'fsm_main_category_style' );
         self::field_number_custom( 'main_cat_icon_size', 'Ikon méret (px)', 36, 24, 48, 'fsm_main_category_style' );
@@ -187,8 +190,11 @@ class FSM_Admin {
         $out['main_cat_icon_text_color'] = self::sanitize_color( $input, 'main_cat_icon_text_color', '#ffffff', true );
         $out['main_cat_hover_bg_color'] = self::sanitize_color( $input, 'main_cat_hover_bg_color', 'rgba(0,0,0,0.1)', true );
         $out['main_cat_hover_text_color'] = self::sanitize_color( $input, 'main_cat_hover_text_color', 'inherit', true );
+        $out['main_cat_active_bg_color'] = self::sanitize_color( $input, 'main_cat_active_bg_color', '#0b6ea8', true );
+        $out['main_cat_active_text_color'] = self::sanitize_color( $input, 'main_cat_active_text_color', '#ffffff', true );
         
         $out['main_cat_border_radius'] = self::sanitize_number( $input, 'main_cat_border_radius', 14, 0, 30 );
+        $out['main_cat_active_border_radius'] = self::sanitize_number( $input, 'main_cat_active_border_radius', 14, 0, 30 );
         $out['main_cat_padding_v'] = self::sanitize_number( $input, 'main_cat_padding_v', 8, 4, 20 );
         $out['main_cat_padding_h'] = self::sanitize_number( $input, 'main_cat_padding_h', 14, 4, 30 );
         $out['main_cat_icon_size'] = self::sanitize_number( $input, 'main_cat_icon_size', 36, 24, 48 );
@@ -382,7 +388,10 @@ class FSM_Admin {
                 setField('main_cat_icon_text_color', '#ffffff');
                 setField('main_cat_hover_bg_color', 'rgba(0,0,0,0.1)');
                 setField('main_cat_hover_text_color', 'inherit');
+                setField('main_cat_active_bg_color', '#0b6ea8');
+                setField('main_cat_active_text_color', '#ffffff');
                 setField('main_cat_border_radius', '14');
+                setField('main_cat_active_border_radius', '14');
                 setField('main_cat_padding_v', '8');
                 setField('main_cat_padding_h', '14');
                 setField('main_cat_icon_size', '36');
@@ -417,7 +426,10 @@ class FSM_Admin {
                 setField('main_cat_icon_text_color', '#003d5c');
                 setField('main_cat_hover_bg_color', 'rgba(11,110,168,0.08)');
                 setField('main_cat_hover_text_color', '#003d5c');
+                setField('main_cat_active_bg_color', 'rgba(11,110,168,0.12)');
+                setField('main_cat_active_text_color', '#003d5c');
                 setField('main_cat_border_radius', '0');
+                setField('main_cat_active_border_radius', '0');
                 setField('main_cat_padding_v', '12');
                 setField('main_cat_padding_h', '8');
                 setField('main_cat_icon_size', '28');
