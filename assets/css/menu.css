@@ -1,4 +1,4 @@
-/* Forme Smart Menu v0.5.3 */
+/* Forme Smart Menu v0.5.4 */
 :root {
   --fsm-primary: #0b6ea8;
   --fsm-grid-mobile: 2;
@@ -11,6 +11,8 @@
   --fsm-main-text: #ffffff;
   --fsm-main-icon-bg: rgba(255, 255, 255, 0.22);
   --fsm-main-icon-text: #ffffff;
+  --fsm-main-hover-bg: rgba(0, 0, 0, 0.1);
+  --fsm-main-hover-text: inherit;
   --fsm-main-radius: 14px;
   --fsm-main-pad-v: 8px;
   --fsm-main-pad-h: 14px;
@@ -224,6 +226,11 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   gap: 6px 10px;
   align-items: center;
   cursor: pointer;
+}
+
+.fsm-section__toggle:hover {
+  background: var(--fsm-main-hover-bg);
+  color: var(--fsm-main-hover-text);
 }
 
 /* Feature 2: Category icon */
