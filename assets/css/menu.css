@@ -1,4 +1,4 @@
-/* Forme Smart Menu v0.4.1 */
+/* Forme Smart Menu v0.4.2 */
 :root {
   --fsm-primary: #0b6ea8;
   --fsm-grid-mobile: 2;
@@ -267,14 +267,26 @@ body.fsm-desktop-right .fsm-drawer.is-open {
 }
 
 /* When no description: center title vertically and horizontally */
+.fsm-section__toggle:not(:has(.fsm-section__desc)) {
+  grid-template-rows: auto;
+}
+
 .fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__title {
-  grid-row: 1/3;
+  grid-row: 1/2;
   text-align: center;
+}
+
+.fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__icon {
+  grid-row: 1/2;
+}
+
+.fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__icon-img {
+  grid-row: 1/2;
 }
 
 .fsm-section__toggle:not(:has(.fsm-section__desc)):not(:has(.fsm-section__icon-img)) .fsm-section__title {
   grid-column: 1/2;
-  grid-row: 1/3;
+  grid-row: 1/2;
   text-align: center;
 }
 
