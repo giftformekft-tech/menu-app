@@ -227,7 +227,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   color: var(--fsm-main-active-text);
 }
 
-.fsm-section__toggle {
+#fsm-drawer .fsm-section__toggle {
   width: 100%;
   text-align: left;
   padding: var(--fsm-main-pad-v) var(--fsm-main-pad-h);
@@ -241,9 +241,18 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   align-items: center;
   cursor: pointer;
   transition: background 200ms ease, color 200ms ease;
+
+  /* Reset theme styles */
+  box-shadow: none;
+  text-shadow: none;
+  background-image: none;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.4;
+  margin: 0;
 }
 
-.fsm-section__toggle:hover {
+#fsm-drawer .fsm-section__toggle:hover {
   background: var(--fsm-main-hover-bg);
   color: var(--fsm-main-hover-text);
 }
