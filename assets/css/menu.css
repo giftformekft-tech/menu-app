@@ -211,6 +211,12 @@ body.fsm-desktop-right .fsm-drawer.is-open {
 .fsm-section {
   border-radius: var(--fsm-main-radius);
   overflow: hidden;
+  transition: border-radius 200ms ease;
+}
+
+/* Hover state */
+.fsm-section:hover {
+  border-radius: var(--fsm-main-radius);
 }
 
 /* Active/expanded state */
@@ -236,6 +242,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   gap: 6px 10px;
   align-items: center;
   cursor: pointer;
+  transition: background 200ms ease, color 200ms ease;
 }
 
 .fsm-section__toggle:hover {

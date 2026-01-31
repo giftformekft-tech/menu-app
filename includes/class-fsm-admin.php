@@ -72,7 +72,6 @@ class FSM_Admin {
         self::field_text( 'main_cat_active_text_color', 'Kijelölt szövegszín (hex)', '#ffffff', 'fsm_main_category_style' );
         
         self::field_number_custom( 'main_cat_border_radius', 'Lekerekítés (px)', 14, 0, 30, 'fsm_main_category_style' );
-        self::field_number_custom( 'main_cat_active_border_radius', 'Kijelölt lekerekítés (px)', 14, 0, 30, 'fsm_main_category_style' );
         self::field_number_custom( 'main_cat_padding_v', 'Padding függőleges (px)', 8, 4, 20, 'fsm_main_category_style' );
         self::field_number_custom( 'main_cat_padding_h', 'Padding vízszintes (px)', 14, 4, 30, 'fsm_main_category_style' );
         self::field_number_custom( 'main_cat_icon_size', 'Ikon méret (px)', 36, 24, 48, 'fsm_main_category_style' );
