@@ -403,7 +403,7 @@ class FSM_Admin {
         echo '</ul>';
         echo '</div>';
         
-        // Main Form
+        // Main Form (for settings tabs only)
         echo '<form method="post" action="options.php">';
         settings_fields( 'fsm_settings' );
         
@@ -422,18 +422,18 @@ class FSM_Admin {
         self::render_tab_featured();
         echo '</div>';
         
-        // Tab: Custom Sections
+        submit_button();
+        echo '</form>';
+        
+        // Tab: Custom Sections (separate form to avoid nesting)
         echo '<div id="tab-sections" class="fsm-admin-tab-content">';
         self::render_tab_sections();
         echo '</div>';
         
-        // Tab: Menu Order
+        // Tab: Menu Order (separate form to avoid nesting)
         echo '<div id="tab-order" class="fsm-admin-tab-content">';
         self::render_tab_order();
         echo '</div>';
-        
-        submit_button();
-        echo '</form>';
         
         echo '</div>'; // .wrap
     }
