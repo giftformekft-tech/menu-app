@@ -11,9 +11,12 @@
   --fsm-main-text: #ffffff;
   --fsm-main-icon-bg: rgba(255, 255, 255, 0.22);
   --fsm-main-icon-text: #ffffff;
+  --fsm-main-hover-bg: rgba(0, 0, 0, 0.1);
+  --fsm-main-hover-text: inherit;
   --fsm-main-active-bg: #0b6ea8;
   --fsm-main-active-text: #ffffff;
   --fsm-main-radius: 14px;
+  --fsm-main-pad-v: 8px;
   --fsm-main-pad-h: 14px;
   --fsm-main-icon-size: 36px;
   --fsm-main-icon-radius: 12px;
