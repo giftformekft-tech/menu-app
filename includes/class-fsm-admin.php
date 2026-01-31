@@ -72,6 +72,11 @@ class FSM_Admin {
         self::field_checkbox( 'button_icon_only', 'Csak ikon (felirat nélkül)', 'Mobilon/ikon sávban szebb.' );
         self::field_text( 'primary_color', 'Fő szín (hex)', '#0b6ea8' );
         self::field_number( 'button_height', 'Gomb magasság (px)', 40, 24, 100 );
+        self::field_select( 'title_alignment', 'Szöveg igazítás', array(
+            'left'   => 'Balra (Alapértelmezett)',
+            'center' => 'Középre',
+            'right'  => 'Jobbra',
+        ), 'left' );
         
         // Feature 1: Description toggle
         self::field_checkbox( 'show_descriptions', 'Főkategória leírások megjelenítése', 'Kategória név alatt megjelenik a leírás.' );

@@ -39,8 +39,10 @@ add_action( 'wp_enqueue_scripts', function () {
     if ( ! preg_match( '/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/', $primary ) ) { $primary = '#0b6ea8'; }
     
     $btn_height = FSM_Settings::get_int( 'button_height', 40 );
+    $align = FSM_Settings::get_string( 'title_alignment', 'left' );
+    if ( ! in_array( $align, array( 'left', 'center', 'right' ) ) ) { $align = 'left'; }
     
-    wp_add_inline_style( 'fsm-menu', ':root{--fsm-primary:' . $primary . ';--fsm-btn-height:' . $btn_height . 'px;}' );
+    wp_add_inline_style( 'fsm-menu', ':root{--fsm-primary:' . $primary . ';--fsm-btn-height:' . $btn_height . 'px;--fsm-title-align:' . $align . ';}' );
     wp_enqueue_script( 'fsm-menu' );
 } );
 

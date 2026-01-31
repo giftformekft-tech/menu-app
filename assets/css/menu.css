@@ -272,8 +272,8 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   font-size: var(--fsm-main-font-size);
   grid-column: 2/3;
   grid-row: 1/2;
-  text-align: left;
-  justify-self: start;
+  text-align: var(--fsm-title-align, left);
+  justify-self: var(--fsm-title-align, start);
   align-self: center;
 }
 
@@ -282,8 +282,8 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   font-size: 12px;
   grid-column: 2/3;
   grid-row: 2/3;
-  text-align: left;
-  justify-self: start;
+  text-align: var(--fsm-title-align, left);
+  justify-self: var(--fsm-title-align, start);
   align-self: center;
 }
 
