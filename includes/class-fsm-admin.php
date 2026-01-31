@@ -486,6 +486,14 @@ class FSM_Admin {
                 setField('chip_font_size', '14');
                 setField('chip_font_weight', '600');
                 
+                alert('✅ Minimális stílus beállítások betöltve! Ne felejtsd el menteni.');
+            });
+        });
+        </script>
+        <?php
+        echo '</div>';
+    }
+
     public static function register_ajax() : void {
         add_action( 'wp_ajax_fsm_reorder_sections', array( __CLASS__, 'ajax_reorder_sections' ) );
         add_action( 'wp_ajax_fsm_toggle_section', array( __CLASS__, 'ajax_toggle_section' ) );
