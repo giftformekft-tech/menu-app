@@ -71,6 +71,7 @@ class FSM_Admin {
         self::field_text( 'button_label', 'Gomb felirat', 'Kategóriák' );
         self::field_checkbox( 'button_icon_only', 'Csak ikon (felirat nélkül)', 'Mobilon/ikon sávban szebb.' );
         self::field_text( 'primary_color', 'Fő szín (hex)', '#0b6ea8' );
+        self::field_number( 'button_height', 'Gomb magasság (px)', 40, 24, 100 );
         
         // Feature 1: Description toggle
         self::field_checkbox( 'show_descriptions', 'Főkategória leírások megjelenítése', 'Kategória név alatt megjelenik a leírás.' );
@@ -184,6 +185,12 @@ class FSM_Admin {
         if ( $limit_desktop < 1 ) $limit_desktop = 1;
         if ( $limit_desktop > 24 ) $limit_desktop = 24;
         $out['child_limit_desktop'] = $limit_desktop;
+
+        // Button height
+        $btn_height = isset( $input['button_height'] ) ? intval( $input['button_height'] ) : 40;
+        if ( $btn_height < 24 ) $btn_height = 24;
+        if ( $btn_height > 100 ) $btn_height = 100;
+        $out['button_height'] = $btn_height;
 
         // Feature 3: Grid columns
         $grid_mobile = isset( $input['grid_columns_mobile'] ) ? intval( $input['grid_columns_mobile'] ) : 2;

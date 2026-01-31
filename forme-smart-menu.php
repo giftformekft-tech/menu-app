@@ -37,7 +37,10 @@ add_action( 'wp_enqueue_scripts', function () {
     // Set primary color as CSS variable
     $primary = FSM_Settings::get_string( 'primary_color', '#0b6ea8' );
     if ( ! preg_match( '/^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/', $primary ) ) { $primary = '#0b6ea8'; }
-    wp_add_inline_style( 'fsm-menu', ':root{--fsm-primary:' . $primary . ';}' );
+    
+    $btn_height = FSM_Settings::get_int( 'button_height', 40 );
+    
+    wp_add_inline_style( 'fsm-menu', ':root{--fsm-primary:' . $primary . ';--fsm-btn-height:' . $btn_height . 'px;}' );
     wp_enqueue_script( 'fsm-menu' );
 } );
 
