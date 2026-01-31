@@ -6,6 +6,29 @@ class FSM_Admin {
     public static function init() : void {
         add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
         add_action( 'admin_init', array( __CLASS__, 'register' ) );
+        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
+    }
+
+    public static function enqueue_admin_assets( string $hook ) : void {
+        //  Only load on our settings page
+        if ( 'settings_page_forme-smart-menu' !== $hook ) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'fsm-admin-ui',
+            FSM_URL . 'assets/css/admin-ui.css',
+            array(),
+            FSM_VERSION
+       );
+
+        wp_enqueue_script(
+            'fsm-admin-ui',
+            FSM_URL . 'assets/js/admin-ui.js',
+            array( 'jquery' ),
+            FSM_VERSION,
+            true
+        );
     }
 
     public static function menu() : void {
@@ -335,33 +358,122 @@ class FSM_Admin {
             echo '<div class="notice notice-success"><p>Menü cache törölve!</p></div>';
         }
 
-        echo '<div class="wrap"><h1>Forme Smart Menu</h1>';
+        echo '<div class="wrap">';
+        echo '<h1>Forme Smart Menu</h1>';
+        
+        // Tab Navigation
+        echo '<div class="fsm-admin-tabs">';
+        echo '<ul class="fsm-admin-tabs__nav">';
+        echo '<li><a href="#" class="fsm-admin-tabs__link is-active" data-tab="tab-basic">⚙️ Alapbeállítások</a></li>';
+        echo '<li><a href="#" class="fsm-admin-tabs__link" data-tab="tab-appearance">🎨 Megjelenés</a></li>';
+        echo '<li><a href="#" class="fsm-admin-tabs__link" data-tab="tab-featured">⭐ Kiemelt</a></li>';
+        echo '<li><a href="#" class="fsm-admin-tabs__link" data-tab="tab-sections">📌 Egyedi Szekciók</a></li>';
+        echo '<li><a href="#" class="fsm-admin-tabs__link" data-tab="tab-order">🔀 Menü Sorrend</a></li>';
+        echo '</ul>';
+        echo '</div>';
+        
+        // Main Form
         echo '<form method="post" action="options.php">';
         settings_fields( 'fsm_settings' );
-        do_settings_sections( 'forme-smart-menu' );
+        
+        // Tab: Basic Settings
+        echo '<div id="tab-basic" class="fsm-admin-tab-content is-active">';
+        self::render_tab_basic();
+        echo '</div>';
+        
+        // Tab: Appearance
+        echo '<div id="tab-appearance" class="fsm-admin-tab-content">';
+        self::render_tab_appearance();
+        echo '</div>';
+        
+        // Tab: Featured
+        echo '<div id="tab-featured" class="fsm-admin-tab-content">';
+        self::render_tab_featured();
+        echo '</div>';
+        
+        // Tab: Custom Sections
+        echo '<div id="tab-sections" class="fsm-admin-tab-content">';
+        self::render_tab_sections();
+        echo '</div>';
+        
+        // Tab: Menu Order
+        echo '<div id="tab-order" class="fsm-admin-tab-content">';
+        self::render_tab_order();
+        echo '</div>';
+        
         submit_button();
         echo '</form>';
+        
+        echo '</div>'; // .wrap
+    }
 
-        // Manual cache clear button
-        echo '<hr style="margin: 30px 0;">';
-        echo '<h2>Cache kezelés</h2>';
+    private static function render_tab_basic() : void {
+        echo '<div class="fsm-card">';
+        echo '<div class="fsm-card__header">';
+        echo '<h2 class="fsm-card__title">Általános beállítások</h2>';
+        echo '</div>';
+        echo '<div class="fsm-card__body">';
+        
+        do_settings_sections( 'forme-smart-menu' );
+        
+        echo '</div>';
+        echo '</div>';
+        
+        // Cache management
+        echo '<div class="fsm-card">';
+        echo '<div class="fsm-card__header">';
+        echo '<h2 class="fsm-card__title">Cache kezelés</h2>';
+        echo '</div>';
+        echo '<div class="fsm-card__body">';
         echo '<p>Ha a menü nem frissül megfelelően, töröld a cache-t:</p>';
-        echo '<form method="post">';
+        echo '<form method="post" style="margin-top: 15px;">';
         wp_nonce_field( 'fsm_clear_cache_action' );
         echo '<button type="submit" name="fsm_clear_cache" class="button button-secondary">Menü cache törlése</button>';
         echo '</form>';
-
-        // Style presets
-        echo '<hr style="margin: 30px 0;">';
-        echo '<h2>Gyors stílus előbeállítások</h2>';
-        echo '<p>Kattints valamelyik gombra az összes stílus beállítás azonnali kitöltéséhez:</p>';
-        echo '<div style="display: flex; gap: 10px; margin: 15px 0;">';
-        echo '<button type="button" class="button button-primary" id="fsm-preset-classic">📘 Klasszikus stílus</button>';
-        echo '<button type="button" class="button button-primary" id="fsm-preset-minimal">✨ Minimális stílus</button>';
         echo '</div>';
-        echo '<p style="color: #666; font-size: 13px;">⚠️ Ezek a gombok felülírják az összes stílus beállítást! A változtatások mentéséhez görgess le és kattints a "Változtatások mentése" gombra.</p>';
+        echo '</div>';
+    }
 
-        // JavaScript for presets
+    private static function render_tab_appearance() : void {
+        echo '<div class="fsm-card">';
+        echo '<div class="fsm-card__header">';
+        echo '<h2 class="fsm-card__title">Gyors stílus előbeállítások</h2>';
+        echo '</div>';
+        echo '<div class="fsm-card__body">';
+        echo '<p>Kattints valamelyik gombra az összes stílus beállítás azonnali kitöltéséhez:</p>';
+        echo '<div class="fsm-presets">';
+        echo '<button type="button" class="button button-primary fsm-preset-btn" id="fsm-preset-classic">📘 Klasszikus stílus</button>';
+        echo '<button type="button" class="button button-primary fsm-preset-btn" id="fsm-preset-minimal">✨ Minimális stílus</button>';
+        echo '</div>';
+        echo '<p class="fsm-text-muted">⚠️ Ezek a gombok felülírják az összes stílus beállítást! A változtatások mentéséhez görgess le és kattints a "Változtatások mentése" gombra.</p>';
+        echo '</div>';
+        echo '</div>';
+        
+        self::render_preset_javascript();
+    }
+
+    private static function render_tab_featured() : void {
+        echo '<div class="fsm-empty-state">';
+        echo '<div class="fsm-empty-state__icon">⭐</div>';
+        echo '<p class="fsm-empty-state__text">A kiemelt alkategóriák funkció hamarosan elérhető lesz.</p>';
+        echo '</div>';
+    }
+
+    private static function render_tab_sections() : void {
+        echo '<div class="fsm-empty-state">';
+        echo '<div class="fsm-empty-state__icon">📌</div>';
+        echo '<p class="fsm-empty-state__text">Az egyedi szekciók funkció hamarosan elérhető lesz.</p>';
+        echo '</div>';
+    }
+
+    private static function render_tab_order() : void {
+        echo '<div class="fsm-empty-state">';
+        echo '<div class="fsm-empty-state__icon">🔀</div>';
+        echo '<p class="fsm-empty-state__text">A menü sorrend állító hamarosan elérhető lesz.</p>';
+        echo '</div>';
+    }
+
+    private static function render_preset_javascript() : void {
         ?>
         <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -451,7 +563,5 @@ class FSM_Admin {
         });
         </script>
         <?php
-
-        echo '</div>';
     }
 }
