@@ -1,4 +1,4 @@
-/* Forme Smart Menu v0.6.1 */
+/* Forme Smart Menu v0.7.0 */
 :root {
   --fsm-primary: #0b6ea8;
   --fsm-grid-mobile: 2;
@@ -276,182 +276,198 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   text-align: center;
   justify-self: center;
   align-self: center;
-}
 
-.fsm-section__icon {
-  grid-column: 3/4;
-  grid-row: 1/3;
-  width: var(--fsm-main-icon-size);
-  height: var(--fsm-main-icon-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--fsm-main-icon-radius);
-  background: var(--fsm-main-icon-bg);
-  color: var(--fsm-main-icon-text);
-  font-weight: 900;
-  font-size: 20px;
-}
-
-.fsm-section[aria-expanded="true"] .fsm-section__icon {
-  transform: rotate(45deg);
-}
-
-/* If no icon, adjust grid to 2 columns */
-.fsm-section__toggle:not(:has(.fsm-section__icon-img)) {
-  grid-template-columns: 1fr auto;
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__title {
-  grid-column: 1/2;
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__desc {
-  grid-column: 1/2;
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__icon {
-  grid-column: 2/3;
-}
-
-/* When no description: center title vertically and horizontally */
-.fsm-section__toggle:not(:has(.fsm-section__desc)) {
-  grid-template-rows: auto;
-  padding: var(--fsm-main-pad-v) var(--fsm-main-pad-h);
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__title {
-  grid-row: 1/2;
-  text-align: center;
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__icon {
-  grid-row: 1/2;
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__icon-img {
-  grid-row: 1/2;
-}
-
-.fsm-section__toggle:not(:has(.fsm-section__desc)):not(:has(.fsm-section__icon-img)) .fsm-section__title {
-  grid-column: 1/2;
-  grid-row: 1/2;
-  text-align: center;
-}
-
-
-/* Panel */
-.fsm-panel {
-  padding: 12px 14px 14px;
-  background: #fff;
-}
-
-/* Feature 3: Grid columns (responsive) */
-.fsm-chips {
-  display: grid;
-  grid-template-columns: repeat(var(--fsm-grid-mobile, 2), 1fr);
-  gap: 10px;
-}
-
-.fsm-chip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--fsm-chip-pad-v) var(--fsm-chip-pad-h);
-  border-radius: var(--fsm-chip-radius);
-  background: var(--fsm-chip-bg);
-  border: var(--fsm-chip-border-width) solid var(--fsm-chip-border);
-  text-decoration: none;
-  font-weight: var(--fsm-chip-font-weight);
-  font-size: var(--fsm-chip-font-size);
-  color: var(--fsm-chip-text);
-}
-
-.fsm-chip:hover {
-  border-color: var(--fsm-chip-hover-border);
-  background: var(--fsm-chip-hover-bg);
-}
-
-.fsm-chip:focus {
-  outline: 2px solid rgba(11, 110, 168, 0.25);
-  outline-offset: 2px;
-}
-
-/* Feature 4: More button colors */
-.fsm-chip--more {
-  border: 2px dashed rgba(0, 0, 0, 0.25);
-  background: var(--fsm-more-bg, transparent);
-  color: var(--fsm-more-color, inherit);
-}
-
-.fsm-chip--extra {
-  display: none;
-}
-
-.fsm-chips.is-expanded .fsm-chip--extra {
-  display: flex;
-}
-
-.fsm-chips.is-expanded .fsm-chip--more {
-  border-style: solid;
-}
-
-/* Feature 5: Responsive card visibility (mobile defaults) */
-@media (max-width: 899px) {
-
-  /* On mobile, show desktop-only extras if they're not also mobile extras */
-  .fsm-chip--desktop-extra:not(.fsm-chip--mobile-extra) {
-    display: flex !important;
+  /* Main category icon */
+  .fsm-section__icon-img {
+    width: var(--fsm-main-icon-size);
+    height: var(--fsm-main-icon-size);
+    object-fit: cover;
+    border-radius: var(--fsm-main-icon-radius);
+    background: var(--fsm-main-icon-bg);
+    margin-right: 10px;
   }
-}
 
-@media (min-width: 900px) {
-
-  /* On desktop, show mobile-only extras if they're not also desktop extras */
-  .fsm-chip--mobile-extra:not(.fsm-chip--desktop-extra) {
-    display: flex !important;
+  .fsm-section__icon-emoji {
+    font-size: calc(var(--fsm-main-icon-size) * 0.8);
+    line-height: 1;
+    margin-right: 10px;
+    display: inline-block;
   }
-}
 
-.fsm-more {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
+  .fsm-section__icon {
+    grid-column: 3/4;
+    grid-row: 1/3;
+    width: var(--fsm-main-icon-size);
+    height: var(--fsm-main-icon-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--fsm-main-icon-radius);
+    background: var(--fsm-main-icon-bg);
+    color: var(--fsm-main-icon-text);
+    font-weight: 900;
+    font-size: 20px;
+  }
 
-.fsm-more__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+  .fsm-section[aria-expanded="true"] .fsm-section__icon {
+    transform: rotate(45deg);
+  }
 
-.fsm-more__item {
-  display: block;
-  padding: 10px 10px;
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.03);
-  text-decoration: none;
-  color: inherit;
-  border: 1px solid rgba(0, 0, 0, 0.10);
-}
+  /* If no icon, adjust grid to 2 columns */
+  .fsm-section__toggle:not(:has(.fsm-section__icon-img)) {
+    grid-template-columns: 1fr auto;
+  }
 
-.fsm-more__item:hover {
-  border-color: var(--fsm-primary);
-  background: rgba(11, 110, 168, 0.06);
-}
+  .fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__title {
+    grid-column: 1/2;
+  }
 
-/* Desktop */
-@media (min-width: 900px) {
+  .fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__desc {
+    grid-column: 1/2;
+  }
+
+  .fsm-section__toggle:not(:has(.fsm-section__icon-img)) .fsm-section__icon {
+    grid-column: 2/3;
+  }
+
+  /* When no description: center title vertically and horizontally */
+  .fsm-section__toggle:not(:has(.fsm-section__desc)) {
+    grid-template-rows: auto;
+    padding: var(--fsm-main-pad-v) var(--fsm-main-pad-h);
+  }
+
+  .fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__title {
+    grid-row: 1/2;
+    text-align: center;
+  }
+
+  .fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__icon {
+    grid-row: 1/2;
+  }
+
+  .fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__icon-img {
+    grid-row: 1/2;
+  }
+
+  .fsm-section__toggle:not(:has(.fsm-section__desc)):not(:has(.fsm-section__icon-img)) .fsm-section__title {
+    grid-column: 1/2;
+    grid-row: 1/2;
+    text-align: center;
+  }
+
+
+  /* Panel */
+  .fsm-panel {
+    padding: 12px 14px 14px;
+    background: #fff;
+  }
+
+  /* Feature 3: Grid columns (responsive) */
   .fsm-chips {
-    grid-template-columns: repeat(var(--fsm-grid-desktop, 3), minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: repeat(var(--fsm-grid-mobile, 2), 1fr);
+    gap: 10px;
+  }
+
+  .fsm-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--fsm-chip-pad-v) var(--fsm-chip-pad-h);
+    border-radius: var(--fsm-chip-radius);
+    background: var(--fsm-chip-bg);
+    border: var(--fsm-chip-border-width) solid var(--fsm-chip-border);
+    text-decoration: none;
+    font-weight: var(--fsm-chip-font-weight);
+    font-size: var(--fsm-chip-font-size);
+    color: var(--fsm-chip-text);
+  }
+
+  .fsm-chip:hover {
+    border-color: var(--fsm-chip-hover-border);
+    background: var(--fsm-chip-hover-bg);
+  }
+
+  .fsm-chip:focus {
+    outline: 2px solid rgba(11, 110, 168, 0.25);
+    outline-offset: 2px;
+  }
+
+  /* Feature 4: More button colors */
+  .fsm-chip--more {
+    border: 2px dashed rgba(0, 0, 0, 0.25);
+    background: var(--fsm-more-bg, transparent);
+    color: var(--fsm-more-color, inherit);
+  }
+
+  .fsm-chip--extra {
+    display: none;
+  }
+
+  .fsm-chips.is-expanded .fsm-chip--extra {
+    display: flex;
+  }
+
+  .fsm-chips.is-expanded .fsm-chip--more {
+    border-style: solid;
+  }
+
+  /* Feature 5: Responsive card visibility (mobile defaults) */
+  @media (max-width: 899px) {
+
+    /* On mobile, show desktop-only extras if they're not also mobile extras */
+    .fsm-chip--desktop-extra:not(.fsm-chip--mobile-extra) {
+      display: flex !important;
+    }
+  }
+
+  @media (min-width: 900px) {
+
+    /* On desktop, show mobile-only extras if they're not also desktop extras */
+    .fsm-chip--mobile-extra:not(.fsm-chip--desktop-extra) {
+      display: flex !important;
+    }
+  }
+
+  .fsm-more {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .fsm-more__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
-}
 
-/* Make sure Astra header doesn't stretch the button */
-.ast-builder-layout-element .fsm-btn {
-  width: auto;
-}
+  .fsm-more__item {
+    display: block;
+    padding: 10px 10px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.03);
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid rgba(0, 0, 0, 0.10);
+  }
+
+  .fsm-more__item:hover {
+    border-color: var(--fsm-primary);
+    background: rgba(11, 110, 168, 0.06);
+  }
+
+  /* Desktop */
+  @media (min-width: 900px) {
+    .fsm-chips {
+      grid-template-columns: repeat(var(--fsm-grid-desktop, 3), minmax(0, 1fr));
+    }
+
+    .fsm-more__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Make sure Astra header doesn't stretch the button */
+  .ast-builder-layout-element .fsm-btn {
+    width: auto;
+  }

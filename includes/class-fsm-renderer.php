@@ -227,65 +227,185 @@ class FSM_Renderer {
     }
 
     private static function build_menu_inner( int $limit_mobile, int $limit_desktop ) : string {
-        $parents = get_terms( array(
-            'taxonomy'   => 'product_cat',
-            'hide_empty' => false,
-            'parent'     => 0,
-            'orderby'    => 'name',
-            'order'      => 'ASC',
-        ) );
-
-        if ( is_wp_error( $parents ) || empty( $parents ) ) {
-            return '<!-- FSM: no parent categories -->';
+        // Get menu order configuration
+        $menu_order = get_option( 'fsm_menu_order', array() );
+        
+        // If no order exists, this is handled in admin but generate fallback anyway
+        if ( empty( $menu_order ) ) {
+            // Fallback: show WC categories in alphabetical order
+            $parents = get_terms( array(
+                'taxonomy'   => 'product_cat',
+                'hide_empty' => false,
+                'parent'     => 0,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            ) );
+            
+            if ( ! is_wp_error( $parents ) && ! empty( $parents ) ) {
+                foreach ( $parents as $term ) {
+                    $menu_order[] = array( 'type' => 'category', 'id' => (string) $term->term_id );
+                }
+            }
         }
 
         $show_descriptions = FSM_Settings::get_bool( 'show_descriptions', true );
 
         ob_start();
         echo '<div class="fsm-section-list">';
-        foreach ( $parents as $parent_term ) {
-            $parent_id = intval( $parent_term->term_id );
-
-            $children = get_terms( array(
-                'taxonomy'   => 'product_cat',
-                'hide_empty' => false,
-                'parent'     => $parent_id,
-                'orderby'    => 'name',
-                'order'      => 'ASC',
-            ) );
-            if ( is_wp_error( $children ) ) { $children = array(); }
-
-            // Skip empty parents
-            if ( empty( $children ) ) { continue; }
-
-            $panel_id = 'fsm-panel-' . $parent_id;
+        
+        foreach ( $menu_order as $item ) {
+            $type = $item['type'] ?? '';
+            $id = $item['id'] ?? '';
             
-            // Feature 2: Category icon
-            $icon_url = '';
-            if ( class_exists( 'FSM_Category_Meta' ) ) {
-                $icon_url = FSM_Category_Meta::get_category_icon( $parent_id );
+            switch ( $type ) {
+                case 'category':
+                    echo self::render_wc_category( intval( $id ), $limit_mobile, $limit_desktop, $show_descriptions );
+                    break;
+                    
+                case 'custom':
+                    echo self::render_custom_section( $id, $limit_mobile, $limit_desktop );
+                    break;
+                    
+                case 'links':
+                    // Links are rendered separately, skip here
+                    break;
             }
-            
-            ?>
-            <section class="fsm-section" data-parent-id="<?php echo esc_attr( $parent_id ); ?>">
-                <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
-                    <?php if ( $icon_url ) : ?>
-                        <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon_url ); ?>" alt="" />
-                    <?php endif; ?>
-                    <span class="fsm-section__title"><?php echo esc_html( $parent_term->name ); ?></span>
-                    <?php if ( $show_descriptions ) : ?>
-                        <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
-                    <?php endif; ?>
-                    <span class="fsm-section__icon" aria-hidden="true">+</span>
-                </button>
-
-                <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
-                    <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
-                </div>
-            </section>
-            <?php
         }
+        
         echo '</div>';
+        return ob_get_clean();
+    }
+
+    private static function render_wc_category( int $parent_id, int $limit_mobile, int $limit_desktop, bool $show_descriptions ) : string {
+        $parent_term = get_term( $parent_id );
+        if ( ! $parent_term || is_wp_error( $parent_term ) ) {
+            return '';
+        }
+
+        $children = get_terms( array(
+            'taxonomy'   => 'product_cat',
+            'hide_empty' => false,
+            'parent'     => $parent_id,
+            'orderby'    => 'name',
+            'order'      => 'ASC',
+        ) );
+        if ( is_wp_error( $children ) ) { $children = array(); }
+
+        // Apply featured subcategory priority sorting
+        $featured_config = FSM_Settings::get_all();
+        $featured_data = isset( $featured_config['featured_subcategories'] ) ? $featured_config['featured_subcategories'] : array();
+        
+        if ( ! empty( $featured_data ) && ! empty( $children ) ) {
+            usort( $children, function( $a, $b ) use ( $featured_data ) {
+                $a_id = $a->term_id;
+                $b_id = $b->term_id;
+                
+                $a_featured = isset( $featured_data[ $a_id ]['featured'] ) && $featured_data[ $a_id ]['featured'];
+                $b_featured = isset( $featured_data[ $b_id ]['featured'] ) && $featured_data[ $b_id ]['featured'];
+                
+                // Featured items come first
+                if ( $a_featured && ! $b_featured ) return -1;
+                if ( ! $a_featured && $b_featured ) return 1;
+                
+                // If both featured or both not featured, sort by priority
+                if ( $a_featured && $b_featured ) {
+                    $a_priority = isset( $featured_data[ $a_id ]['priority'] ) ? intval( $featured_data[ $a_id ]['priority'] ) : 50;
+                    $b_priority = isset( $featured_data[ $b_id ]['priority'] ) ? intval( $featured_data[ $b_id ]['priority'] ) : 50;
+                    
+                    if ( $a_priority !== $b_priority ) {
+                        return $a_priority - $b_priority;
+                    }
+                }
+                
+                // Fall back to alphabetical
+                return strcmp( $a->name, $b->name );
+            } );
+        }
+
+        // Skip empty parents
+        if ( empty( $children ) ) { return ''; }
+
+        $panel_id = 'fsm-panel-' . $parent_id;
+        
+        // Category icon
+        $icon_url = '';
+        if ( class_exists( 'FSM_Category_Meta' ) ) {
+            $icon_url = FSM_Category_Meta::get_category_icon( $parent_id );
+        }
+        
+        ob_start();
+        ?>
+        <section class="fsm-section" data-parent-id="<?php echo esc_attr( $parent_id ); ?>">
+            <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
+                <?php if ( $icon_url ) : ?>
+                    <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+                <?php endif; ?>
+                <span class="fsm-section__title"><?php echo esc_html( $parent_term->name ); ?></span>
+                <?php if ( $show_descriptions ) : ?>
+                    <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
+                <?php endif; ?>
+                <span class="fsm-section__icon" aria-hidden="true">+</span>
+            </button>
+
+            <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
+                <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
+            </div>
+        </section>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function render_custom_section( string $section_id, int $limit_mobile, int $limit_desktop ) : string {
+        $sections = get_option( 'fsm_custom_sections', array() );
+        
+        if ( ! isset( $sections[ $section_id ] ) ) {
+            return '';
+        }
+        
+        $section = $sections[ $section_id ];
+        $name = $section['name'] ?? '';
+        $icon = $section['icon'] ?? '';
+        $subcat_ids = $section['subcategories'] ?? array();
+        
+        if ( empty( $name ) || empty( $subcat_ids ) ) {
+            return '';
+        }
+        
+        // Get all subcategories
+        $children = array();
+        foreach ( $subcat_ids as $term_id ) {
+            $term = get_term( intval( $term_id ) );
+            if ( $term && ! is_wp_error( $term ) ) {
+                $children[] = $term;
+            }
+        }
+        
+        if ( empty( $children ) ) {
+            return '';
+        }
+        
+        $panel_id = 'fsm-panel-custom-' . $section_id;
+        
+        ob_start();
+        ?>
+        <section class="fsm-section" data-section-id="<?php echo esc_attr( $section_id ); ?>">
+            <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
+                <?php if ( $icon ) : ?>
+                    <?php if ( filter_var( $icon, FILTER_VALIDATE_URL ) ) : ?>
+                        <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon ); ?>" alt="" />
+                    <?php else : ?>
+                        <span class="fsm-section__icon-emoji"><?php echo esc_html( $icon ); ?></span>
+                    <?php endif; ?>
+                <?php endif; ?>
+                <span class="fsm-section__title"><?php echo esc_html( $name ); ?></span>
+                <span class="fsm-section__icon" aria-hidden="true">+</span>
+            </button>
+
+            <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
+                <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
+            </div>
+        </section>
+        <?php
         return ob_get_clean();
     }
 
