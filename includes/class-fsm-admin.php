@@ -451,7 +451,209 @@ class FSM_Admin {
         });
         </script>
         <?php
+        
+        // Custom Sections Management
+        self::render_custom_sections();
 
         echo '</div>';
+    }
+    
+    private static function render_custom_sections() : void {
+        // Handle CRUD operations
+        $custom_sections = get_option( 'fsm_custom_sections', array() );
+        
+        // Handle delete
+        if ( isset( $_POST['fsm_delete_section'] ) && isset( $_POST['section_id'] ) && check_admin_referer( 'fsm_section_action' ) ) {
+            $section_id = sanitize_text_field( $_POST['section_id'] );
+            $custom_sections = array_values( array_filter( $custom_sections, function( $s ) use ( $section_id ) {
+                return $s['id'] !== $section_id;
+            } ) );
+            update_option( 'fsm_custom_sections', $custom_sections );
+            if ( function_exists( 'fsm_clear_menu_cache' ) ) {
+                fsm_clear_menu_cache();
+            }
+            echo '<div class="notice notice-success"><p>✅ Szekció törölve!</p></div>';
+        }
+        
+        // Handle save
+        if ( isset( $_POST['fsm_save_section'] ) && check_admin_referer( 'fsm_section_action' ) ) {
+            $section_id = isset( $_POST['section_id'] ) && $_POST['section_id'] !== '' 
+                ? sanitize_text_field( $_POST['section_id'] ) 
+                : 'section_' . time();
+            
+            $name = isset( $_POST['section_name'] ) ? sanitize_text_field( $_POST['section_name'] ) : '';
+            $position = isset( $_POST['section_position'] ) ? max( 1, intval( $_POST['section_position'] ) ) : 1;
+            $subcats = isset( $_POST['section_subcats'] ) && is_array( $_POST['section_subcats'] ) 
+                ? array_map( 'intval', $_POST['section_subcats'] ) 
+                : array();
+            
+            if ( $name !== '' && ! empty( $subcats ) ) {
+                $new_section = array(
+                    'id' => $section_id,
+                    'name' => $name,
+                    'position' => $position,
+                    'subcategories' => $subcats,
+                );
+                
+                // Update or add section
+                $found = false;
+                foreach ( $custom_sections as $index => $section ) {
+                    if ( $section['id'] === $section_id ) {
+                        $custom_sections[ $index ] = $new_section;
+                        $found = true;
+                        break;
+                    }
+                }
+                
+                if ( ! $found ) {
+                    $custom_sections[] = $new_section;
+                }
+                
+                update_option( 'fsm_custom_sections', $custom_sections );
+                if ( function_exists( 'fsm_clear_menu_cache' ) ) {
+                    fsm_clear_menu_cache();
+                }
+                echo '<div class="notice notice-success"><p>✅ Szekció mentve!</p></div>';
+            } else {
+                echo '<div class="notice notice-error"><p>❌ Név és legalább egy alkategória szükséges!</p></div>';
+            }
+        }
+        
+        // Show editor or list
+        $editing_id = isset( $_GET['edit_section'] ) ? sanitize_text_field( $_GET['edit_section'] ) : null;
+        $is_new = isset( $_GET['new_section'] );
+        
+        echo '<hr style="margin: 30px 0;">';
+        echo '<h2>Egyedi Kiemelt Szekciók</h2>';
+        
+        if ( $editing_id !== null || $is_new ) {
+            self::render_section_editor( $editing_id, $custom_sections );
+        } else {
+            self::render_sections_list( $custom_sections );
+        }
+    }
+    
+    private static function render_sections_list( array $sections ) : void {
+        echo '<p>Hozz létre egyedi szekciókat, ahol manuálisan kiválaszthatod mely alkategóriák jelenjenek meg.</p>';
+        echo '<a href="?page=forme-smart-menu&new_section=1" class="button button-primary" style="margin: 15px 0;">+ Új szekció hozzáadása</a>';
+        
+        if ( empty( $sections ) ) {
+            echo '<p style="color: #666; margin-top: 20px;">Még nincsenek egyedi szekciók.</p>';
+        } else {
+            // Sort by position
+            usort( $sections, function( $a, $b ) {
+                return ( $a['position'] ?? 999 ) - ( $b['position'] ?? 999 );
+            } );
+            
+            echo '<table class="wp-list-table widefat fixed striped" style="margin-top: 15px;">';
+            echo '<thead><tr>';
+            echo '<th style="width: 60px;">Pozíció</th>';
+            echo '<th>Név</th>';
+            echo '<th style="width: 120px;">Alkategóriák</th>';
+            echo '<th style="width: 200px;">Műveletek</th>';
+            echo '</tr></thead>';
+            echo '<tbody>';
+            
+            foreach ( $sections as $section ) {
+                $section_id = $section['id'];
+                $name = $section['name'];
+                $position = $section['position'] ?? 1;
+                $subcat_count = count( $section['subcategories'] ?? array() );
+                
+                echo '<tr>';
+                echo '<td style="text-align: center;"><strong>' . esc_html( $position ) . '</strong></td>';
+                echo '<td><strong>' . esc_html( $name ) . '</strong></td>';
+                echo '<td style="text-align: center;">' . esc_html( $subcat_count ) . ' db</td>';
+                echo '<td>';
+                
+                echo '<a href="?page=forme-smart-menu&edit_section=' . esc_attr( $section_id ) . '" class="button button-small">Szerkesztés</a> ';
+                
+                echo '<form method="post" style="display: inline;" onsubmit="return confirm(\'Biztosan törölni szeretnéd?\');">';
+                wp_nonce_field( 'fsm_section_action' );
+                echo '<input type="hidden" name="section_id" value="' . esc_attr( $section_id ) . '">';
+                echo '<button type="submit" name="fsm_delete_section" class="button button-small button-link-delete">Törlés</button>';
+                echo '</form>';
+                
+                echo '</td>';
+                echo '</tr>';
+            }
+            
+            echo '</tbody></table>';
+        }
+    }
+    
+    private static function render_section_editor( $editing_id, array $sections ) : void {
+        $is_edit = false;
+        $section = array( 'id' => '', 'name' => '', 'position' => 1, 'subcategories' => array() );
+        
+        if ( $editing_id !== null ) {
+            foreach ( $sections as $s ) {
+                if ( $s['id'] === $editing_id ) {
+                    $section = $s;
+                    $is_edit = true;
+                    break;
+                }
+            }
+        }
+        
+        $all_categories = get_terms( array(
+            'taxonomy' => 'product_cat',
+            'hide_empty' => false,
+        ) );
+        
+        echo '<h3>' . ( $is_edit ? 'Szekció szerkesztése' : 'Új szekció létrehozása' ) . '</h3>';
+        echo '<a href="?page=forme-smart-menu" class="button" style="margin-bottom: 15px;">← Vissza a listához</a>';
+        
+        echo '<form method="post" style="background: #fff; padding: 20px; border: 1px solid #c3c4c7; border-radius: 4px; max-width: 700px; margin-top: 15px;">';
+        wp_nonce_field( 'fsm_section_action' );
+        
+        if ( $is_edit ) {
+            echo '<input type="hidden" name="section_id" value="' . esc_attr( $section['id'] ) . '">';
+        }
+        
+        // Name
+        echo '<p><label><strong>Szekció neve *</strong><br>';
+        echo '<input type="text" name="section_name" value="' . esc_attr( $section['name'] ) . '" required style="width: 100%; max-width: 400px;"></label></p>';
+        
+        // Position
+        echo '<p><label><strong>Pozíció *</strong><br>';
+        echo '<input type="number" name="section_position" value="' . esc_attr( $section['position'] ) . '" min="1" required style="width: 100px;">';
+        echo ' <span style="color: #666; font-size: 13px;">(1 = első helyen, 2 = második helyen, stb.)</span></label></p>';
+        
+        // Subcategories
+        echo '<p><strong>Alkategóriák *</strong></p>';
+        echo '<p style="color: #666; font-size: 13px;">Válaszd ki azokat az alkategóriákat, amelyek ebben a szekcióban jelenjenek meg:</p>';
+        
+        if ( ! empty( $all_categories ) && ! is_wp_error( $all_categories ) ) {
+            echo '<div style="max-height: 300px; overflow-y: auto; border: 1px solid #c3c4c7; background: #fafafa; padding: 10px; border-radius: 4px;">';
+            
+            foreach ( $all_categories as $term ) {
+                $checked = in_array( $term->term_id, $section['subcategories'], true );
+                
+                echo '<label style="display: block; padding: 4px 0; margin: 0;">';
+                echo '<input type="checkbox" name="section_subcats[]" value="' . esc_attr( $term->term_id ) . '" ' . checked( $checked, true, false ) . '> ';
+                echo esc_html( $term->name );
+                
+                if ( $term->parent ) {
+                    $parent = get_term( $term->parent );
+                    if ( $parent && ! is_wp_error( $parent ) ) {
+                        echo ' <span style="color: #999;">(' . esc_html( $parent->name ) . ')</span>';
+                    }
+                }
+                
+                echo '</label>';
+            }
+            
+            echo '</div>';
+        } else {
+            echo '<p style="color: #999;">Nincsenek elérhető kategóriák.</p>';
+        }
+        
+        echo '<p style="margin-top: 20px;">';
+        echo '<button type="submit" name="fsm_save_section" class="button button-primary">💾 Mentés</button> ';
+        echo '<a href="?page=forme-smart-menu" class="button">Mégse</a>';
+        echo '</p>';
+        
+        echo '</form>';
     }
 }
