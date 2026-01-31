@@ -78,7 +78,7 @@ class FSM_Renderer {
             'primary' => $primary,
             'lang'  => function_exists( 'get_locale' ) ? get_locale() : 'na',
             'show_desc' => FSM_Settings::get_bool( 'show_descriptions', true ),
-            'style_v' => '0.7.0', // Increment when adding new style settings
+            'style_v' => '0.7.0-fix1', // Force new cache
         ) ) );
 
         $inner = get_transient( $cache_key );
