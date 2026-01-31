@@ -1,0 +1,57 @@
+.fsm-admin-wrap {
+    max-width: 1200px;
+}
+
+/* Category Selector in Edit Form */
+.fsm-cat-selector {
+    border: 1px solid #ddd;
+    background: #fff;
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.fsm-cat-checkbox {
+    display: block;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.fsm-cat-checkbox:hover {
+    background: #f0f0f1;
+}
+
+/* Sortable List */
+.fsm-drag-handle {
+    font-size: 18px;
+    line-height: 1;
+    text-align: center;
+    cursor: grab;
+}
+
+.fsm-drag-handle:active {
+    cursor: grabbing;
+}
+
+.ui-sortable-helper {
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: table;
+}
+
+/* Edit Form Container */
+.fsm-edit-form.card {
+    max-width: 800px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Status Button */
+.fsm-toggle-status {
+    width: 60px;
+    text-align: center;
+}

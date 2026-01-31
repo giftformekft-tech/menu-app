@@ -6,16 +6,56 @@ class FSM_Admin {
     public static function init() : void {
         add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
         add_action( 'admin_init', array( __CLASS__, 'register' ) );
+        self::register_ajax();
     }
 
     public static function menu() : void {
-        add_options_page(
+        add_menu_page(
             'Forme Smart Menu',
-            'Forme Smart Menu',
+            'Forme Menu',
+            'manage_options',
+            'forme-smart-menu',
+            array( __CLASS__, 'page' ),
+            'dashicons-menu-alt',
+            58
+        );
+        
+        // Rename main submenu
+        add_submenu_page(
+            'forme-smart-menu',
+            'Beállítások',
+            'Beállítások',
             'manage_options',
             'forme-smart-menu',
             array( __CLASS__, 'page' )
         );
+
+        // Add custom sections submenu
+        $hook = add_submenu_page(
+            'forme-smart-menu',
+            'Kiemelt szekciók',
+            'Kiemelt szekciók',
+            'manage_options',
+            'fsm-custom-sections',
+            array( __CLASS__, 'page_custom_sections' )
+        );
+
+        add_action( 'load-' . $hook, array( __CLASS__, 'enqueue_custom_section_assets' ) );
+    }
+
+    public static function enqueue_custom_section_assets() : void {
+        add_action( 'admin_enqueue_scripts', function() {
+            wp_enqueue_style( 'fsm-admin-css', FSM_URL . 'assets/css/admin-custom-sections.css', array(), FSM_VERSION );
+            
+            wp_enqueue_script( 'jquery-ui-sortable' );
+            wp_enqueue_script( 'fsm-admin-js', FSM_URL . 'assets/js/admin-custom-sections.js', array( 'jquery', 'jquery-ui-sortable' ), FSM_VERSION, true );
+            
+            wp_localize_script( 'fsm-admin-js', 'fsmAdmin', array(
+                'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                'nonce'   => wp_create_nonce( 'fsm_custom_sections_nonce' ),
+                'confirmDelete' => 'Biztosan törölni szeretnéd ezt a szekciót?',
+            ) );
+        } );
     }
 
     public static function register() : void {
@@ -446,12 +486,212 @@ class FSM_Admin {
                 setField('chip_font_size', '14');
                 setField('chip_font_weight', '600');
                 
-                alert('✅ Minimális stílus beállítások betöltve! Ne felejtsd el menteni.');
-            });
-        });
-        </script>
-        <?php
+    public static function register_ajax() : void {
+        add_action( 'wp_ajax_fsm_reorder_sections', array( __CLASS__, 'ajax_reorder_sections' ) );
+        add_action( 'wp_ajax_fsm_toggle_section', array( __CLASS__, 'ajax_toggle_section' ) );
+    }
 
-        echo '</div>';
+    public static function ajax_reorder_sections() : void {
+        check_ajax_referer( 'fsm_custom_sections_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
+
+        $order = isset( $_POST['order'] ) ? $_POST['order'] : array();
+        if ( ! is_array( $order ) ) wp_send_json_error( 'Invalid data' );
+
+        // Map index => id to id => position
+        $map = array();
+        foreach ( $order as $position => $id ) {
+            $map[ intval( $id ) ] = intval( $position );
+        }
+
+        if ( FSM_Custom_Sections::reorder_sections( $map ) ) {
+            wp_send_json_success();
+        } else {
+            wp_send_json_error( 'Failed to save order' );
+        }
+    }
+
+    public static function ajax_toggle_section() : void {
+        check_ajax_referer( 'fsm_custom_sections_nonce', 'nonce' );
+        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( 'Permission denied' );
+
+        $id = isset( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
+        if ( ! $id ) wp_send_json_error( 'Invalid ID' );
+
+        if ( FSM_Custom_Sections::toggle_enabled( $id ) ) {
+            wp_send_json_success();
+        } else {
+            wp_send_json_error( 'Failed to toggle' );
+        }
+    }
+
+    public static function page_custom_sections() : void {
+        if ( ! current_user_can( 'manage_options' ) ) return;
+
+        // Handle Form Submission
+        if ( isset( $_POST['fsm_save_section'] ) && check_admin_referer( 'fsm_save_section_action' ) ) {
+            $id = isset( $_POST['section_id'] ) ? intval( $_POST['section_id'] ) : 0;
+            $data = array(
+                'name' => isset( $_POST['section_name'] ) ? sanitize_text_field( $_POST['section_name'] ) : '',
+                'subcategories' => isset( $_POST['subcategories'] ) ? array_map( 'intval', $_POST['subcategories'] ) : array(),
+                'enabled' => isset( $_POST['section_enabled'] ) ? 1 : 0,
+                'position' => isset( $_POST['section_position'] ) ? intval( $_POST['section_position'] ) : 0,
+            );
+
+            if ( $id > 0 ) {
+                FSM_Custom_Sections::update_section( $id, $data );
+                echo '<div class="notice notice-success is-dismissible"><p>Szekció frissítve.</p></div>';
+            } else {
+                FSM_Custom_Sections::create_section( $data );
+                echo '<div class="notice notice-success is-dismissible"><p>Új szekció létrehozva.</p></div>';
+            }
+        }
+
+        // Handle Delete
+        if ( isset( $_GET['action'] ) && $_GET['action'] === 'delete' && isset( $_GET['id'] ) ) {
+            check_admin_referer( 'fsm_delete_section' ); // Check nonce from URL
+            $id = intval( $_GET['id'] );
+            FSM_Custom_Sections::delete_section( $id );
+            echo '<div class="notice notice-success is-dismissible"><p>Szekció törölve.</p></div>';
+        }
+
+        $all_sections = FSM_Custom_Sections::get_all_sections();
+        $is_edit = isset( $_GET['action'] ) && $_GET['action'] === 'edit';
+        $edit_id = $is_edit && isset( $_GET['id'] ) ? intval( $_GET['id'] ) : 0;
+        $edit_data = null;
+
+        if ( $edit_id ) {
+            $edit_data = FSM_Custom_Sections::get_section( $edit_id );
+            if ( ! $edit_data ) {
+                $is_edit = false;
+                echo '<div class="notice notice-error"><p>Szekció nem található.</p></div>';
+            }
+        }
+
+        // Get all categories for selector
+        $all_cats = get_terms( array(
+            'taxonomy' => 'product_cat',
+            'hide_empty' => false,
+            'orderby' => 'name',
+            'order' => 'ASC',
+        ) );
+        ?>
+        <div class="wrap fsm-admin-wrap">
+            <h1 class="wp-heading-inline">Kiemelt Kategória Szekciók</h1>
+            <?php if ( ! $is_edit ) : ?>
+                <a href="<?php echo esc_url( add_query_arg( array( 'action' => 'edit', 'id' => 0 ) ) ); ?>" class="page-title-action">Új hozzáadása</a>
+            <?php endif; ?>
+            <hr class="wp-header-end">
+
+            <?php if ( $is_edit || ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && $edit_id === 0 ) ) : ?>
+                <!-- Edit/Create Form -->
+                <div class="fsm-edit-form card">
+                    <h2><?php echo $edit_id ? 'Szekció szerkesztése' : 'Új szekció létrehozása'; ?></h2>
+                    <form method="post">
+                        <?php wp_nonce_field( 'fsm_save_section_action' ); ?>
+                        <input type="hidden" name="fsm_save_section" value="1">
+                        <input type="hidden" name="section_id" value="<?php echo esc_attr( $edit_id ); ?>">
+                        
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row"><label for="section_name">Szekció neve</label></th>
+                                <td>
+                                    <input name="section_name" type="text" id="section_name" value="<?php echo $edit_data ? esc_attr( $edit_data['name'] ) : ''; ?>" class="regular-text" required>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label>Alkategóriák</label></th>
+                                <td>
+                                    <div class="fsm-cat-selector">
+                                        <?php
+                                        $selected_cats = $edit_data && isset( $edit_data['subcategories'] ) ? $edit_data['subcategories'] : array();
+                                        if ( ! is_wp_error( $all_cats ) ) {
+                                            foreach ( $all_cats as $cat ) {
+                                                $is_checked = in_array( intval( $cat->term_id ), $selected_cats, true );
+                                                echo '<label class="fsm-cat-checkbox">';
+                                                echo '<input type="checkbox" name="subcategories[]" value="' . esc_attr( $cat->term_id ) . '" ' . checked( $is_checked, true, false ) . '> ';
+                                                echo esc_html( $cat->name );
+                                                echo '</label>';
+                                            }
+                                        }
+                                        ?>
+                                    </div>
+                                    <p class="description">Válaszd ki, mely kategóriák jelenjenek meg ebben a szekcióban.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="section_position">Pozíció</label></th>
+                                <td>
+                                    <input name="section_position" type="number" id="section_position" value="<?php echo $edit_data ? esc_attr( $edit_data['position'] ) : '0'; ?>" class="small-text">
+                                    <p class="description">Sorrend. Az automatikus kategóriák <strong>1000-től</strong> indulnak. <br>Ha eléjük szeretnéd: <strong>0-999</strong>. <br>Ha mögéjük: <strong>2000+</strong>.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Állapot</th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" name="section_enabled" value="1" <?php checked( $edit_data ? $edit_data['enabled'] : true ); ?>>
+                                        Engedélyezve
+                                    </label>
+                                </td>
+                            </tr>
+                        </table>
+                        <p class="submit">
+                            <button type="submit" class="button button-primary">Mentés</button>
+                            <a href="<?php echo esc_url( remove_query_arg( array( 'action', 'id' ) ) ); ?>" class="button button-secondary">Mégse</a>
+                        </p>
+                    </form>
+                </div>
+
+            <?php else : ?>
+                <!-- List View -->
+                <div class="fsm-sections-list">
+                    <?php if ( empty( $all_sections ) ) : ?>
+                        <div class="notice notice-info inline"><p>Még nincs létrehozva kiemelt szekció.</p></div>
+                    <?php else : ?>
+                        <table class="wp-list-table widefat fixed striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;"></th> <!-- Drag handle -->
+                                    <th>Név</th>
+                                    <th>Alkategóriák</th>
+                                    <th style="width: 80px;">Pozíció</th>
+                                    <th style="width: 80px;">Állapot</th>
+                                    <th style="width: 150px;">Műveletek</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fsm-sortable-list">
+                                <?php foreach ( $all_sections as $section ) : 
+                                    $sub_count = isset( $section['subcategories'] ) ? count( $section['subcategories'] ) : 0;
+                                    $is_enabled = ! empty( $section['enabled'] );
+                                    $edit_url = add_query_arg( array( 'action' => 'edit', 'id' => $section['id'] ) );
+                                    $delete_url = wp_nonce_url( add_query_arg( array( 'action' => 'delete', 'id' => $section['id'] ) ), 'fsm_delete_section' );
+                                ?>
+                                    <tr data-id="<?php echo esc_attr( $section['id'] ); ?>">
+                                        <td class="fsm-drag-handle" style="cursor: move; color: #aaa;">☰</td>
+                                        <td>
+                                            <strong><a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( $section['name'] ); ?></a></strong>
+                                        </td>
+                                        <td><?php echo intval( $sub_count ); ?> db</td>
+                                        <td><?php echo intval( $section['position'] ); ?></td>
+                                        <td>
+                                            <button type="button" class="fsm-toggle-status button button-small <?php echo $is_enabled ? '' : 'button-link-delete'; ?>" data-id="<?php echo esc_attr( $section['id'] ); ?>">
+                                                <?php echo $is_enabled ? 'Aktív' : 'Inaktív'; ?>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <a href="<?php echo esc_url( $edit_url ); ?>" class="button button-small">Szerkesztés</a>
+                                            <a href="<?php echo esc_url( $delete_url ); ?>" class="button button-small button-link-delete fsm-delete-btn">Törlés</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <p class="description">Fogd meg a ☰ ikont a sorrend módosításához. <br><strong>Tipp:</strong> A drag-and-drop 0-tól indítja a sorszámozást (lista eleje). Ha az automatikus kategóriák (1000+) mögé szeretnéd tenni a szekciót, a szerkesztésnél adj meg 2000-nél nagyobb számot.</p>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
     }
 }

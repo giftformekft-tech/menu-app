@@ -78,7 +78,8 @@ class FSM_Renderer {
             'primary' => $primary,
             'lang'  => function_exists( 'get_locale' ) ? get_locale() : 'na',
             'show_desc' => FSM_Settings::get_bool( 'show_descriptions', true ),
-            'style_v' => '0.5.0', // Increment when adding new style settings
+            'custom_sections_hash' => md5( serialize( class_exists( 'FSM_Custom_Sections' ) ? FSM_Custom_Sections::get_all_sections() : array() ) ),
+            'style_v' => '0.7.0', // Increment when adding new style settings
         ) ) );
 
         $inner = get_transient( $cache_key );
@@ -227,6 +228,13 @@ class FSM_Renderer {
     }
 
     private static function build_menu_inner( int $limit_mobile, int $limit_desktop ) : string {
+        // Get custom sections
+        $custom_sections = array();
+        if ( class_exists( 'FSM_Custom_Sections' ) ) {
+            $custom_sections = FSM_Custom_Sections::get_enabled_sections();
+        }
+
+        // Get automatic parent categories
         $parents = get_terms( array(
             'taxonomy'   => 'product_cat',
             'hide_empty' => false,
@@ -235,58 +243,152 @@ class FSM_Renderer {
             'order'      => 'ASC',
         ) );
 
-        if ( is_wp_error( $parents ) || empty( $parents ) ) {
-            return '<!-- FSM: no parent categories -->';
+        if ( is_wp_error( $parents ) ) {
+            $parents = array();
         }
 
         $show_descriptions = FSM_Settings::get_bool( 'show_descriptions', true );
 
+        // Build merged section list
+        $all_sections = array();
+        $sort_counter = 0;
+
+        // Add custom sections
+        foreach ( $custom_sections as $custom ) {
+            $all_sections[] = array(
+                'type' => 'custom',
+                'position' => isset( $custom['position'] ) ? intval( $custom['position'] ) : 0,
+                'sort_index' => $sort_counter++,
+                'data' => $custom,
+            );
+        }
+
+        // Add automatic sections with base position 1000
+        $auto_position = 1000;
+        foreach ( $parents as $parent_term ) {
+            $all_sections[] = array(
+                'type' => 'auto',
+                'position' => $auto_position,
+                'sort_index' => $sort_counter++,
+                'data' => $parent_term,
+            );
+            $auto_position += 10; // Leave gaps for future insertion
+        }
+
+        // Sort all sections by position (stable sort via index)
+        usort( $all_sections, function( $a, $b ) {
+            if ( $a['position'] === $b['position'] ) {
+                return $a['sort_index'] - $b['sort_index'];
+            }
+            return $a['position'] - $b['position'];
+        });
+
         ob_start();
         echo '<div class="fsm-section-list">';
-        foreach ( $parents as $parent_term ) {
-            $parent_id = intval( $parent_term->term_id );
 
-            $children = get_terms( array(
-                'taxonomy'   => 'product_cat',
-                'hide_empty' => false,
-                'parent'     => $parent_id,
-                'orderby'    => 'name',
-                'order'      => 'ASC',
-            ) );
-            if ( is_wp_error( $children ) ) { $children = array(); }
-
-            // Skip empty parents
-            if ( empty( $children ) ) { continue; }
-
-            $panel_id = 'fsm-panel-' . $parent_id;
-            
-            // Feature 2: Category icon
-            $icon_url = '';
-            if ( class_exists( 'FSM_Category_Meta' ) ) {
-                $icon_url = FSM_Category_Meta::get_category_icon( $parent_id );
+        foreach ( $all_sections as $section ) {
+            if ( $section['type'] === 'custom' ) {
+                // Render custom section
+                self::render_custom_section( $section['data'], $limit_mobile, $limit_desktop, $show_descriptions );
+            } else {
+                // Render automatic section
+                self::render_auto_section( $section['data'], $limit_mobile, $limit_desktop, $show_descriptions );
             }
-            
-            ?>
-            <section class="fsm-section" data-parent-id="<?php echo esc_attr( $parent_id ); ?>">
-                <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
-                    <?php if ( $icon_url ) : ?>
-                        <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon_url ); ?>" alt="" />
-                    <?php endif; ?>
-                    <span class="fsm-section__title"><?php echo esc_html( $parent_term->name ); ?></span>
-                    <?php if ( $show_descriptions ) : ?>
-                        <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
-                    <?php endif; ?>
-                    <span class="fsm-section__icon" aria-hidden="true">+</span>
-                </button>
-
-                <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
-                    <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
-                </div>
-            </section>
-            <?php
         }
+
         echo '</div>';
         return ob_get_clean();
+    }
+
+    /**
+     * Render a custom section
+     */
+    private static function render_custom_section( array $section, int $limit_mobile, int $limit_desktop, bool $show_descriptions ) : void {
+        $section_id = isset( $section['id'] ) ? intval( $section['id'] ) : 0;
+        $section_name = isset( $section['name'] ) ? $section['name'] : '';
+        $subcategory_ids = isset( $section['subcategories'] ) && is_array( $section['subcategories'] ) 
+            ? $section['subcategories'] 
+            : array();
+
+        if ( empty( $subcategory_ids ) ) {
+            return; // Skip empty sections
+        }
+
+        // Get subcategory terms
+        $children = get_terms( array(
+            'taxonomy'   => 'product_cat',
+            'hide_empty' => false,
+            'include'    => $subcategory_ids,
+            'orderby'    => 'name',
+            'order'      => 'ASC',
+        ) );
+
+        if ( is_wp_error( $children ) || empty( $children ) ) {
+            return;
+        }
+
+        $panel_id = 'fsm-panel-custom-' . $section_id;
+        ?>
+        <section class="fsm-section" data-custom-section="true" data-section-id="<?php echo esc_attr( $section_id ); ?>">
+            <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
+                <span class="fsm-section__title"><?php echo esc_html( $section_name ); ?></span>
+                <?php if ( $show_descriptions ) : ?>
+                    <span class="fsm-section__desc"><?php echo esc_html( count( $children ) . ' alkategória' ); ?></span>
+                <?php endif; ?>
+                <span class="fsm-section__icon" aria-hidden="true">+</span>
+            </button>
+
+            <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
+                <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
+            </div>
+        </section>
+        <?php
+    }
+
+    /**
+     * Render an automatic parent category section
+     */
+    private static function render_auto_section( $parent_term, int $limit_mobile, int $limit_desktop, bool $show_descriptions ) : void {
+        $parent_id = intval( $parent_term->term_id );
+
+        $children = get_terms( array(
+            'taxonomy'   => 'product_cat',
+            'hide_empty' => false,
+            'parent'     => $parent_id,
+            'orderby'    => 'name',
+            'order'      => 'ASC',
+        ) );
+        if ( is_wp_error( $children ) ) { $children = array(); }
+
+        // Skip empty parents
+        if ( empty( $children ) ) { return; }
+
+        $panel_id = 'fsm-panel-' . $parent_id;
+        
+        // Feature 2: Category icon
+        $icon_url = '';
+        if ( class_exists( 'FSM_Category_Meta' ) ) {
+            $icon_url = FSM_Category_Meta::get_category_icon( $parent_id );
+        }
+        
+        ?>
+        <section class="fsm-section" data-parent-id="<?php echo esc_attr( $parent_id ); ?>">
+            <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
+                <?php if ( $icon_url ) : ?>
+                    <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+                <?php endif; ?>
+                <span class="fsm-section__title"><?php echo esc_html( $parent_term->name ); ?></span>
+                <?php if ( $show_descriptions ) : ?>
+                    <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
+                <?php endif; ?>
+                <span class="fsm-section__icon" aria-hidden="true">+</span>
+            </button>
+
+            <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
+                <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
+            </div>
+        </section>
+        <?php
     }
 
     private static function render_chips( array $children, int $limit_mobile, int $limit_desktop ) : string {
