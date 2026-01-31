@@ -269,6 +269,7 @@ body.fsm-desktop-right .fsm-drawer.is-open {
 /* When no description: center title vertically and horizontally */
 .fsm-section__toggle:not(:has(.fsm-section__desc)) {
   grid-template-rows: auto;
+  padding: 8px 14px;
 }
 
 .fsm-section__toggle:not(:has(.fsm-section__desc)) .fsm-section__title {
