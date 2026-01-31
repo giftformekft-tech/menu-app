@@ -343,6 +343,99 @@ class FSM_Admin {
         echo '<button type="submit" name="fsm_clear_cache" class="button button-secondary">Menü cache törlése</button>';
         echo '</form>';
 
+        // Style presets
+        echo '<hr style="margin: 30px 0;">';
+        echo '<h2>Gyors stílus előbeállítások</h2>';
+        echo '<p>Kattints valamelyik gombra az összes stílus beállítás azonnali kitöltéséhez:</p>';
+        echo '<div style="display: flex; gap: 10px; margin: 15px 0;">';
+        echo '<button type="button" class="button button-primary" id="fsm-preset-classic">📘 Klasszikus stílus</button>';
+        echo '<button type="button" class="button button-primary" id="fsm-preset-minimal">✨ Minimális stílus</button>';
+        echo '</div>';
+        echo '<p style="color: #666; font-size: 13px;">⚠️ Ezek a gombok felülírják az összes stílus beállítást! A változtatások mentéséhez görgess le és kattints a "Változtatások mentése" gombra.</p>';
+
+        // JavaScript for presets
+        ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const optionKey = '<?php echo esc_js( FSM_Settings::OPTION_KEY ); ?>';
+            
+            // Helper to set field value
+            function setField(key, value) {
+                const field = document.querySelector(`[name="${optionKey}[${key}]"]`);
+                if (field) {
+                    field.value = value;
+                }
+            }
+            
+            // Classic preset (current default)
+            document.getElementById('fsm-preset-classic')?.addEventListener('click', function() {
+                if (!confirm('Biztosan felülírod az összes stílus beállítást a Klasszikus stílussal?')) return;
+                
+                // Main category
+                setField('main_cat_bg_color', '#0b6ea8');
+                setField('main_cat_text_color', '#ffffff');
+                setField('main_cat_icon_bg_color', 'rgba(255,255,255,0.22)');
+                setField('main_cat_icon_text_color', '#ffffff');
+                setField('main_cat_border_radius', '14');
+                setField('main_cat_padding_v', '8');
+                setField('main_cat_padding_h', '14');
+                setField('main_cat_icon_size', '36');
+                setField('main_cat_icon_radius', '12');
+                setField('main_cat_font_size', '18');
+                setField('main_cat_font_weight', '900');
+                
+                // Subcategory
+                setField('chip_bg_color', '#ffffff');
+                setField('chip_text_color', 'inherit');
+                setField('chip_border_color', 'rgba(0,0,0,0.12)');
+                setField('chip_hover_bg_color', 'rgba(11,110,168,0.06)');
+                setField('chip_hover_border_color', '#0b6ea8');
+                setField('chip_border_radius', '14');
+                setField('chip_padding_v', '4');
+                setField('chip_padding_h', '10');
+                setField('chip_border_width', '1');
+                setField('chip_font_size', '14');
+                setField('chip_font_weight', '800');
+                
+                alert('✅ Klasszikus stílus beállítások betöltve! Ne felejtsd el menteni.');
+            });
+            
+            // Minimal preset
+            document.getElementById('fsm-preset-minimal')?.addEventListener('click', function() {
+                if (!confirm('Biztosan felülírod az összes stílus beállítást a Minimális stílussal?')) return;
+                
+                // Main category - minimal (light blue bg, dark text)
+                setField('main_cat_bg_color', 'rgba(11,110,168,0.05)');
+                setField('main_cat_text_color', '#003d5c');
+                setField('main_cat_icon_bg_color', 'transparent');
+                setField('main_cat_icon_text_color', '#003d5c');
+                setField('main_cat_border_radius', '6');
+                setField('main_cat_padding_v', '10');
+                setField('main_cat_padding_h', '14');
+                setField('main_cat_icon_size', '32');
+                setField('main_cat_icon_radius', '6');
+                setField('main_cat_font_size', '16');
+                setField('main_cat_font_weight', '700');
+                
+                // Subcategory - subtle blue bg, dark text
+                setField('chip_bg_color', '#f0f4f8');
+                setField('chip_text_color', '#003d5c');
+                setField('chip_border_color', 'rgba(11,110,168,0.1)');
+                setField('chip_hover_bg_color', 'rgba(11,110,168,0.12)');
+                setField('chip_hover_border_color', 'rgba(11,110,168,0.3)');
+                setField('chip_border_radius', '6');
+                setField('chip_padding_v', '6');
+                setField('chip_padding_h', '10');
+                setField('chip_border_width', '1');
+                setField('chip_font_size', '14');
+                setField('chip_font_weight', '600');
+                
+                alert('✅ Minimális stílus beállítások betöltve! Ne felejtsd el menteni.');
+            });
+        });
+        </script>
+        <?php
+
         echo '</div>';
     }
 }
