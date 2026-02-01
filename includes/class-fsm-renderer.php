@@ -143,7 +143,8 @@ class FSM_Renderer {
         <aside id="fsm-drawer" class="fsm-drawer" role="dialog" aria-modal="true" aria-label="Kategóriák" hidden style="<?php echo $inline_style; ?>">
             <div class="fsm-drawer__head">
                 <div class="fsm-drawer__title">Kategóriák</div>
-                <button type="button" class="fsm-drawer__close" data-fsm-close aria-label="Bezárás">✕</button>
+                <?php $close_style = FSM_Settings::get_string( 'close_button_style', 'filled' ); ?>
+                <button type="button" class="fsm-drawer__close fsm-close-<?php echo esc_attr( $close_style ); ?>" data-fsm-close aria-label="Bezárás">✕</button>
             </div>
             <div class="fsm-drawer__body">
                 <?php echo $inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

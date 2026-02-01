@@ -160,6 +160,53 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   background: rgba(0, 0, 0, 0.06);
   cursor: pointer;
   font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 200ms ease;
+}
+
+.fsm-close-transparent {
+  background: transparent;
+  border: 0;
+}
+
+.fsm-close-outline {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.fsm-close-primary {
+  background: var(--fsm-primary);
+  color: #fff;
+  border: 0;
+}
+
+.fsm-close-theme {
+  background: unset;
+  border: unset;
+  color: unset;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  border-radius: unset;
+}
+
+.fsm-close-filled:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.fsm-close-transparent:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.fsm-close-outline:hover {
+  border-color: var(--fsm-primary);
+  color: var(--fsm-primary);
+}
+
+.fsm-close-primary:hover {
+  filter: brightness(0.9);
 }
 
 .fsm-drawer__body {

@@ -78,6 +78,20 @@ class FSM_Admin {
             'right'  => 'Jobbra',
         ), 'left' );
         
+        self::field_select( 'title_alignment', 'Szöveg igazítás', array(
+            'left'   => 'Balra (Alapértelmezett)',
+            'center' => 'Középre',
+            'right'  => 'Jobbra',
+        ), 'left' );
+
+        self::field_select( 'close_button_style', 'Bezáró (X) gomb stílusa', array(
+            'filled'      => 'Dobozos (Szürke - Alapértelmezett)',
+            'primary'     => 'Színes (Fő szín)',
+            'transparent' => 'Átlátszó (Csak az X)',
+            'outline'     => 'Keretes',
+            'theme'       => 'Téma szerint (Örökölt)',
+        ), 'filled' );
+        
         // Feature 1: Description toggle
         self::field_checkbox( 'show_descriptions', 'Főkategória leírások megjelenítése', 'Kategória név alatt megjelenik a leírás.' );
         
