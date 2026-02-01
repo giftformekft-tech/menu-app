@@ -580,6 +580,8 @@ class FSM_Admin {
                 'enabled' => isset( $_POST['section_enabled'] ) ? 1 : 0,
                 'default_open' => isset( $_POST['section_default_open'] ) ? 1 : 0,
                 'position' => isset( $_POST['section_position'] ) ? intval( $_POST['section_position'] ) : 0,
+                'bg_color' => isset( $_POST['section_bg_color'] ) ? sanitize_hex_color( $_POST['section_bg_color'] ) : '',
+                'text_color' => isset( $_POST['section_text_color'] ) ? sanitize_hex_color( $_POST['section_text_color'] ) : '',
             );
 
             if ( $id > 0 ) {
@@ -678,6 +680,20 @@ class FSM_Admin {
                                         Legyen alapból nyitva
                                     </label>
                                     <p class="description">Ha bepipálod, a menü megnyitásakor ez a szekció lenyitva indul.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label>Egyedi stílus</label></th>
+                                <td>
+                                    <p>
+                                        <label for="section_bg_color">Háttérszín:</label><br>
+                                        <input name="section_bg_color" type="color" id="section_bg_color" value="<?php echo ( $edit_data && ! empty( $edit_data['bg_color'] ) ) ? esc_attr( $edit_data['bg_color'] ) : '#0b6ea8'; ?>">
+                                    </p>
+                                    <p>
+                                        <label for="section_text_color">Szövegszín:</label><br>
+                                        <input name="section_text_color" type="color" id="section_text_color" value="<?php echo ( $edit_data && ! empty( $edit_data['text_color'] ) ) ? esc_attr( $edit_data['text_color'] ) : '#ffffff'; ?>">
+                                    </p>
+                                    <p class="description">Hagyd üresen vagy állítsd alapértelmezettre, ha nem szeretnél egyedi színt.</p>
                                 </td>
                             </tr>
                             <tr>

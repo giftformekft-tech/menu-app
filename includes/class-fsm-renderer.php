@@ -330,8 +330,19 @@ class FSM_Renderer {
 
         $panel_id = 'fsm-panel-custom-' . $section_id;
         $is_open = ! empty( $section['default_open'] );
+        
+        $style = '';
+        if ( ! empty( $section['bg_color'] ) ) {
+            $style .= '--fsm-main-bg:' . esc_attr( $section['bg_color'] ) . ';';
+            $style .= '--fsm-main-active-bg:' . esc_attr( $section['bg_color'] ) . ';'; // Keep active same as normal for custom
+        }
+        if ( ! empty( $section['text_color'] ) ) {
+            $style .= '--fsm-main-text:' . esc_attr( $section['text_color'] ) . ';';
+            $style .= '--fsm-main-icon-text:' . esc_attr( $section['text_color'] ) . ';';
+            $style .= '--fsm-main-active-text:' . esc_attr( $section['text_color'] ) . ';';
+        }
         ?>
-        <section class="fsm-section" data-custom-section="true" data-section-id="<?php echo esc_attr( $section_id ); ?>">
+        <section class="fsm-section" data-custom-section="true" data-section-id="<?php echo esc_attr( $section_id ); ?>" style="<?php echo $style; ?>">
             <button class="fsm-section__toggle" type="button" aria-expanded="<?php echo $is_open ? 'true' : 'false'; ?>" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
                 <span class="fsm-section__title"><?php echo esc_html( $section_name ); ?></span>
                 <?php if ( $show_descriptions ) : ?>

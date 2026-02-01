@@ -83,6 +83,8 @@ class FSM_Custom_Sections {
             'position' => isset( $data['position'] ) ? intval( $data['position'] ) : 0,
             'default_open' => isset( $data['default_open'] ) ? (bool) $data['default_open'] : false,
             'enabled' => isset( $data['enabled'] ) ? (bool) $data['enabled'] : true,
+            'bg_color' => isset( $data['bg_color'] ) ? sanitize_hex_color( $data['bg_color'] ) : '',
+            'text_color' => isset( $data['text_color'] ) ? sanitize_hex_color( $data['text_color'] ) : '',
         );
 
         $sections[] = $new_section;
@@ -100,18 +102,16 @@ class FSM_Custom_Sections {
         $sections = self::get_all_sections();
         $found = false;
 
-        foreach ( $sections as $index => $section ) {
+        foreach ( $sections as &$section ) {
             if ( isset( $section['id'] ) && intval( $section['id'] ) === $id ) {
-                $sections[ $index ] = array(
-                    'id' => $id,
-                    'name' => isset( $data['name'] ) ? sanitize_text_field( $data['name'] ) : $section['name'],
-                    'subcategories' => isset( $data['subcategories'] ) && is_array( $data['subcategories'] ) 
-                        ? array_map( 'intval', $data['subcategories'] ) 
-                        : $section['subcategories'],
-                    'position' => isset( $data['position'] ) ? intval( $data['position'] ) : $section['position'],
-                    'default_open' => isset( $data['default_open'] ) ? (bool) $data['default_open'] : ( isset( $section['default_open'] ) ? $section['default_open'] : false ),
-                    'enabled' => isset( $data['enabled'] ) ? (bool) $data['enabled'] : $section['enabled'],
-                );
+                if ( isset( $data['name'] ) ) $section['name'] = sanitize_text_field( $data['name'] );
+                if ( isset( $data['subcategories'] ) ) $section['subcategories'] = array_map( 'intval', $data['subcategories'] );
+                if ( isset( $data['position'] ) ) $section['position'] = intval( $data['position'] );
+                if ( isset( $data['enabled'] ) ) $section['enabled'] = (bool) $data['enabled'];
+                if ( isset( $data['default_open'] ) ) $section['default_open'] = (bool) $data['default_open'];
+                if ( isset( $data['bg_color'] ) ) $section['bg_color'] = sanitize_hex_color( $data['bg_color'] );
+                if ( isset( $data['text_color'] ) ) $section['text_color'] = sanitize_hex_color( $data['text_color'] );
+                
                 $found = true;
                 break;
             }
