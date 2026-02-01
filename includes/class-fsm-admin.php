@@ -211,6 +211,15 @@ class FSM_Admin {
         if ( $btn_height > 100 ) $btn_height = 100;
         $out['button_height'] = $btn_height;
 
+        $align = isset( $input['title_alignment'] ) ? $input['title_alignment'] : 'left';
+        if ( ! in_array( $align, array( 'left', 'center', 'right' ), true ) ) $align = 'left';
+        $out['title_alignment'] = $align;
+
+        $close_style = isset( $input['close_button_style'] ) ? $input['close_button_style'] : 'filled';
+        $valid_close_styles = array( 'filled', 'primary', 'transparent', 'outline', 'theme' );
+        if ( ! in_array( $close_style, $valid_close_styles, true ) ) $close_style = 'filled';
+        $out['close_button_style'] = $close_style;
+
         // Feature 3: Grid columns
         $grid_mobile = isset( $input['grid_columns_mobile'] ) ? intval( $input['grid_columns_mobile'] ) : 2;
         if ( $grid_mobile < 1 ) $grid_mobile = 1;

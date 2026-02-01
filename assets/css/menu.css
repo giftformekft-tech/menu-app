@@ -196,6 +196,20 @@ body.fsm-desktop-right .fsm-drawer.is-open {
   background: rgba(0, 0, 0, 0.12);
 }
 
+/* Ensure 'filled' resets theme styles */
+.fsm-close-filled {
+  border: 0;
+  box-shadow: none;
+  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.06);
+  color: inherit;
+}
+
 .fsm-close-transparent:hover {
   background: rgba(0, 0, 0, 0.05);
 }
