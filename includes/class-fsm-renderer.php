@@ -373,10 +373,11 @@ class FSM_Renderer {
         ) );
         if ( is_wp_error( $children ) ) { $children = array(); }
 
-        // Skip empty parents
-        if ( empty( $children ) ) { return; }
+        // Skip empty parents? No, render as link if no children
+        // if ( empty( $children ) ) { return; }
 
         $panel_id = 'fsm-panel-' . $parent_id;
+        $has_children = ! empty( $children );
         
         // Feature 2: Category icon
         $icon_url = '';
@@ -386,20 +387,33 @@ class FSM_Renderer {
         
         ?>
         <section class="fsm-section" data-parent-id="<?php echo esc_attr( $parent_id ); ?>">
-            <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
-                <?php if ( $icon_url ) : ?>
-                    <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon_url ); ?>" alt="" />
-                <?php endif; ?>
-                <span class="fsm-section__title"><?php echo esc_html( $parent_term->name ); ?></span>
-                <?php if ( $show_descriptions ) : ?>
-                    <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
-                <?php endif; ?>
-                <span class="fsm-section__icon" aria-hidden="true">+</span>
-            </button>
+            <?php if ( $has_children ) : ?>
+                <button class="fsm-section__toggle" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr( $panel_id ); ?>">
+                    <?php if ( $icon_url ) : ?>
+                        <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+                    <?php endif; ?>
+                    <span class="fsm-section__title"><?php echo esc_html( $parent_term->name ); ?></span>
+                    <?php if ( $show_descriptions ) : ?>
+                        <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
+                    <?php endif; ?>
+                    <span class="fsm-section__icon" aria-hidden="true">+</span>
+                </button>
 
-            <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
-                <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
-            </div>
+                <div id="<?php echo esc_attr( $panel_id ); ?>" class="fsm-panel" hidden>
+                    <?php echo self::render_chips( $children, $limit_mobile, $limit_desktop ); ?>
+                </div>
+            <?php else : ?>
+                <a class="fsm-section__toggle" href="<?php echo esc_url( get_term_link( $parent_term ) ); ?>">
+                    <?php if ( $icon_url ) : ?>
+                        <img class="fsm-section__icon-img" src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+                    <?php endif; ?>
+                    <span class="fsm-section__title"><?php echo esc_html( $parent_term->name ); ?></span>
+                    <?php if ( $show_descriptions ) : ?>
+                        <span class="fsm-section__desc"><?php echo esc_html( self::subline_for_parent( $parent_term ) ); ?></span>
+                    <?php endif; ?>
+                    <!-- No icon for direct link -->
+                </a>
+            <?php endif; ?>
         </section>
         <?php
     }
