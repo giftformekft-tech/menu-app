@@ -78,8 +78,10 @@ class FSM_Renderer {
             'primary' => $primary,
             'lang'  => function_exists( 'get_locale' ) ? get_locale() : 'na',
             'show_desc' => FSM_Settings::get_bool( 'show_descriptions', true ),
+            'show_main' => FSM_Settings::get_bool( 'show_main_categories', true ),
+            'show_sub'  => FSM_Settings::get_bool( 'show_sub_categories', true ),
             'custom_sections_hash' => md5( serialize( class_exists( 'FSM_Custom_Sections' ) ? FSM_Custom_Sections::get_all_sections() : array() ) ),
-            'style_v' => '0.7.0', // Increment when adding new style settings
+            'style_v' => '0.7.1', // Increment when adding new style settings
         ) ) );
 
         $inner = get_transient( $cache_key );
@@ -235,17 +237,22 @@ class FSM_Renderer {
             $custom_sections = FSM_Custom_Sections::get_enabled_sections();
         }
 
-        // Get automatic parent categories
-        $parents = get_terms( array(
-            'taxonomy'   => 'product_cat',
-            'hide_empty' => false,
-            'parent'     => 0,
-            'orderby'    => 'name',
-            'order'      => 'ASC',
-        ) );
+        // Feature: Toggle automatic categories
+        $show_main = FSM_Settings::get_bool( 'show_main_categories', true );
+        $parents = array();
 
-        if ( is_wp_error( $parents ) ) {
-            $parents = array();
+        if ( $show_main ) {
+            $parents = get_terms( array(
+                'taxonomy'   => 'product_cat',
+                'hide_empty' => false,
+                'parent'     => 0,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            ) );
+
+            if ( is_wp_error( $parents ) ) {
+                $parents = array();
+            }
         }
 
         $show_descriptions = FSM_Settings::get_bool( 'show_descriptions', true );
@@ -265,15 +272,17 @@ class FSM_Renderer {
         }
 
         // Add automatic sections with base position 1000
-        $auto_position = 1000;
-        foreach ( $parents as $parent_term ) {
-            $all_sections[] = array(
-                'type' => 'auto',
-                'position' => $auto_position,
-                'sort_index' => $sort_counter++,
-                'data' => $parent_term,
-            );
-            $auto_position += 10; // Leave gaps for future insertion
+        if ( $show_main ) {
+            $auto_position = 1000;
+            foreach ( $parents as $parent_term ) {
+                $all_sections[] = array(
+                    'type' => 'auto',
+                    'position' => $auto_position,
+                    'sort_index' => $sort_counter++,
+                    'data' => $parent_term,
+                );
+                $auto_position += 10; // Leave gaps for future insertion
+            }
         }
 
         // Sort all sections by position (stable sort via index)
@@ -313,6 +322,11 @@ class FSM_Renderer {
 
         if ( empty( $subcategory_ids ) ) {
             return; // Skip empty sections
+        }
+
+        $show_sub = FSM_Settings::get_bool( 'show_sub_categories', true );
+        if ( ! $show_sub ) {
+            return; // Custom sections only display subcategories.
         }
 
         // Get subcategory terms
@@ -364,14 +378,19 @@ class FSM_Renderer {
     private static function render_auto_section( $parent_term, int $limit_mobile, int $limit_desktop, bool $show_descriptions ) : void {
         $parent_id = intval( $parent_term->term_id );
 
-        $children = get_terms( array(
-            'taxonomy'   => 'product_cat',
-            'hide_empty' => false,
-            'parent'     => $parent_id,
-            'orderby'    => 'name',
-            'order'      => 'ASC',
-        ) );
-        if ( is_wp_error( $children ) ) { $children = array(); }
+        $show_sub = FSM_Settings::get_bool( 'show_sub_categories', true );
+        $children = array();
+
+        if ( $show_sub ) {
+            $children = get_terms( array(
+                'taxonomy'   => 'product_cat',
+                'hide_empty' => false,
+                'parent'     => $parent_id,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            ) );
+            if ( is_wp_error( $children ) ) { $children = array(); }
+        }
 
         // Skip empty parents? No, render as link if no children
         // if ( empty( $children ) ) { return; }

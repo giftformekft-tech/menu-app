@@ -93,7 +93,11 @@ class FSM_Admin {
         ), 'filled' );
         
         // Feature 1: Description toggle
-        self::field_checkbox( 'show_descriptions', 'Főkategória leírások megjelenítése', 'Kategória név alatt megjelenik a leírás.' );
+        self::field_checkbox( 'show_descriptions', 'Főkategória leírások megjelenítése', 'Kategória név alatt megjelenik a leírás.', true );
+        
+        // Visibility
+        self::field_checkbox( 'show_main_categories', 'Automatikus főkategóriák mutatása', 'A WooCommerce főkategóriák automatikus listázása a menüben.', true );
+        self::field_checkbox( 'show_sub_categories', 'Alkategóriák (chipek) mutatása', 'A lenyíló panelekben lévő gombok. Ha kikapcsolod, az egyedi szekciók sem fognak megjelenni.', true );
         
         // Feature 5: Child limits (mobile/desktop)
         self::field_number( 'child_limit_mobile', 'Alkategóriák száma (mobilon)', 6, 1, 24 );
@@ -188,6 +192,8 @@ class FSM_Admin {
         $out['disable_astra_menu'] = ! empty( $input['disable_astra_menu'] ) ? 1 : 0;
         $out['button_icon_only']   = ! empty( $input['button_icon_only'] ) ? 1 : 0;
         $out['show_descriptions']  = ! empty( $input['show_descriptions'] ) ? 1 : 0;
+        $out['show_main_categories'] = ! empty( $input['show_main_categories'] ) ? 1 : 0;
+        $out['show_sub_categories'] = ! empty( $input['show_sub_categories'] ) ? 1 : 0;
 
         $out['button_label'] = isset( $input['button_label'] ) ? sanitize_text_field( $input['button_label'] ) : 'Kategóriák';
 
@@ -333,10 +339,10 @@ class FSM_Admin {
         return in_array( $value, $allowed, true ) ? $value : $default;
     }
 
-    private static function field_checkbox( string $key, string $label, string $desc = '' ) : void {
-        add_settings_field( $key, esc_html( $label ), function () use ( $key, $desc ) {
+    private static function field_checkbox( string $key, string $label, string $desc = '', bool $default = false ) : void {
+        add_settings_field( $key, esc_html( $label ), function () use ( $key, $desc, $default ) {
             $all = FSM_Settings::get_all();
-            $val = ! empty( $all[ $key ] ) ? 1 : 0;
+            $val = isset( $all[ $key ] ) ? ( ! empty( $all[ $key ] ) ? 1 : 0 ) : ( $default ? 1 : 0 );
             echo '<label><input type="checkbox" name="' . esc_attr( FSM_Settings::OPTION_KEY ) . '[' . esc_attr( $key ) . ']" value="1" ' . checked( 1, $val, false ) . ' /> ';
             echo esc_html( $desc ?: $label );
             echo '</label>';
