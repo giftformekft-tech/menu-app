@@ -22,6 +22,12 @@ class FSM_Settings {
         return intval( $all[ $key ] );
     }
 
+    public static function get_array( string $key, array $default = array() ) : array {
+        $all = self::get_all();
+        if ( ! array_key_exists( $key, $all ) ) return $default;
+        return is_array( $all[ $key ] ) ? $all[ $key ] : $default;
+    }
+
     public static function get_string( string $key, string $default = '' ) : string {
         $all = self::get_all();
         if ( ! array_key_exists( $key, $all ) ) return $default;

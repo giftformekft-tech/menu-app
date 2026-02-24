@@ -80,6 +80,7 @@ class FSM_Renderer {
             'show_desc' => FSM_Settings::get_bool( 'show_descriptions', true ),
             'show_main' => FSM_Settings::get_bool( 'show_main_categories', true ),
             'show_sub'  => FSM_Settings::get_bool( 'show_sub_categories', true ),
+            'excluded_cats' => implode( ',', FSM_Settings::get_array( 'excluded_categories', array() ) ),
             'custom_sections_hash' => md5( serialize( class_exists( 'FSM_Custom_Sections' ) ? FSM_Custom_Sections::get_all_sections() : array() ) ),
             'style_v' => '0.7.1', // Increment when adding new style settings
         ) ) );
@@ -248,6 +249,7 @@ class FSM_Renderer {
                 'parent'     => 0,
                 'orderby'    => 'name',
                 'order'      => 'ASC',
+                'exclude'    => FSM_Settings::get_array( 'excluded_categories', array() ),
             ) );
 
             if ( is_wp_error( $parents ) ) {
@@ -329,6 +331,14 @@ class FSM_Renderer {
             return; // Custom sections only display subcategories.
         }
 
+        // Remove excluded categories
+        $excluded_cats = FSM_Settings::get_array( 'excluded_categories', array() );
+        $subcategory_ids = array_diff( $subcategory_ids, $excluded_cats );
+        
+        if ( empty( $subcategory_ids ) ) {
+            return; // Skip empty sections
+        }
+
         // Get subcategory terms
         $children = get_terms( array(
             'taxonomy'   => 'product_cat',
@@ -388,6 +398,7 @@ class FSM_Renderer {
                 'parent'     => $parent_id,
                 'orderby'    => 'name',
                 'order'      => 'ASC',
+                'exclude'    => FSM_Settings::get_array( 'excluded_categories', array() ),
             ) );
             if ( is_wp_error( $children ) ) { $children = array(); }
         }

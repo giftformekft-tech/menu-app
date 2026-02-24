@@ -98,6 +98,9 @@ class FSM_Admin {
         // Visibility
         self::field_checkbox( 'show_main_categories', 'Automatikus főkategóriák mutatása', 'A WooCommerce főkategóriák automatikus listázása a menüben.', true );
         self::field_checkbox( 'show_sub_categories', 'Alkategóriák (chipek) mutatása', 'A lenyíló panelekben lévő gombok. Ha kikapcsolod, az egyedi szekciók sem fognak megjelenni.', true );
+
+        // Exclusions
+        self::field_category_checkboxes( 'excluded_categories', 'Kizárt kategóriák', 'Ezek a kategóriák sehol sem fognak megjelenni a menüben (sem főkategóriaként, sem alkategóriaként, sem egyedi szekcióban).' );
         
         // Feature 5: Child limits (mobile/desktop)
         self::field_number( 'child_limit_mobile', 'Alkategóriák száma (mobilon)', 6, 1, 24 );
@@ -194,6 +197,10 @@ class FSM_Admin {
         $out['show_descriptions']  = ! empty( $input['show_descriptions'] ) ? 1 : 0;
         $out['show_main_categories'] = ! empty( $input['show_main_categories'] ) ? 1 : 0;
         $out['show_sub_categories'] = ! empty( $input['show_sub_categories'] ) ? 1 : 0;
+
+        $out['excluded_categories'] = isset( $input['excluded_categories'] ) && is_array( $input['excluded_categories'] ) 
+            ? array_map( 'intval', $input['excluded_categories'] ) 
+            : array();
 
         $out['button_label'] = isset( $input['button_label'] ) ? sanitize_text_field( $input['button_label'] ) : 'Kategóriák';
 
@@ -402,6 +409,37 @@ class FSM_Admin {
                 echo '<option value="' . esc_attr( $k ) . '" ' . selected( $val, (string) $k, false ) . '>' . esc_html( $v ) . '</option>';
             }
             echo '</select>';
+        }, 'forme-smart-menu', $section );
+    }
+
+    private static function field_category_checkboxes( string $key, string $label, string $desc = '', string $section = 'fsm_main' ) : void {
+        add_settings_field( $key, esc_html( $label ), function () use ( $key, $desc ) {
+            $all = FSM_Settings::get_all();
+            $selected = isset( $all[ $key ] ) && is_array( $all[ $key ] ) ? $all[ $key ] : array();
+            
+            $cats = get_terms( array(
+                'taxonomy'   => 'product_cat',
+                'hide_empty' => false,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            ) );
+            
+            echo '<div class="fsm-cat-selector" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #fff; max-width: 400px;">';
+            if ( ! is_wp_error( $cats ) && ! empty( $cats ) ) {
+                foreach ( $cats as $cat ) {
+                    $is_checked = in_array( intval( $cat->term_id ), $selected, true );
+                    echo '<label style="display: block; margin-bottom: 5px;">';
+                    echo '<input type="checkbox" name="' . esc_attr( FSM_Settings::OPTION_KEY ) . '[' . esc_attr( $key ) . '][]" value="' . esc_attr( $cat->term_id ) . '" ' . checked( $is_checked, true, false ) . '> ';
+                    echo esc_html( $cat->name );
+                    echo '</label>';
+                }
+            } else {
+                echo '<p>Nincs elérhető kategória.</p>';
+            }
+            echo '</div>';
+            if ( $desc ) {
+                echo '<p class="description" style="max-width: 400px;">' . esc_html( $desc ) . '</p>';
+            }
         }, 'forme-smart-menu', $section );
     }
 
