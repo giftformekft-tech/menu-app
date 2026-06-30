@@ -76,10 +76,13 @@ class FSM_Custom_Sections {
         // Build section data
         $new_section = array(
             'id' => $new_id,
+            'type' => isset( $data['type'] ) && $data['type'] === 'featured_link' ? 'featured_link' : 'custom',
             'name' => isset( $data['name'] ) ? sanitize_text_field( $data['name'] ) : '',
-            'subcategories' => isset( $data['subcategories'] ) && is_array( $data['subcategories'] ) 
-                ? array_map( 'intval', $data['subcategories'] ) 
+            'subcategories' => isset( $data['subcategories'] ) && is_array( $data['subcategories'] )
+                ? array_map( 'intval', $data['subcategories'] )
                 : array(),
+            'link_url' => isset( $data['link_url'] ) ? esc_url_raw( $data['link_url'] ) : '',
+            'button_text' => isset( $data['button_text'] ) ? sanitize_text_field( $data['button_text'] ) : '',
             'position' => isset( $data['position'] ) ? intval( $data['position'] ) : 0,
             'default_open' => isset( $data['default_open'] ) ? (bool) $data['default_open'] : false,
             'enabled' => isset( $data['enabled'] ) ? (bool) $data['enabled'] : true,
@@ -104,8 +107,11 @@ class FSM_Custom_Sections {
 
         foreach ( $sections as &$section ) {
             if ( isset( $section['id'] ) && intval( $section['id'] ) === $id ) {
+                if ( isset( $data['type'] ) ) $section['type'] = $data['type'] === 'featured_link' ? 'featured_link' : 'custom';
                 if ( isset( $data['name'] ) ) $section['name'] = sanitize_text_field( $data['name'] );
                 if ( isset( $data['subcategories'] ) ) $section['subcategories'] = array_map( 'intval', $data['subcategories'] );
+                if ( isset( $data['link_url'] ) ) $section['link_url'] = esc_url_raw( $data['link_url'] );
+                if ( isset( $data['button_text'] ) ) $section['button_text'] = sanitize_text_field( $data['button_text'] );
                 if ( isset( $data['position'] ) ) $section['position'] = intval( $data['position'] );
                 if ( isset( $data['enabled'] ) ) $section['enabled'] = (bool) $data['enabled'];
                 if ( isset( $data['default_open'] ) ) $section['default_open'] = (bool) $data['default_open'];

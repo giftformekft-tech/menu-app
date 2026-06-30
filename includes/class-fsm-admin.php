@@ -618,9 +618,13 @@ class FSM_Admin {
         // Handle Form Submission
         if ( isset( $_POST['fsm_save_section'] ) && check_admin_referer( 'fsm_save_section_action' ) ) {
             $id = isset( $_POST['section_id'] ) ? intval( $_POST['section_id'] ) : 0;
+            $section_type = ( isset( $_POST['section_type'] ) && $_POST['section_type'] === 'featured_link' ) ? 'featured_link' : 'custom';
             $data = array(
+                'type' => $section_type,
                 'name' => isset( $_POST['section_name'] ) ? sanitize_text_field( $_POST['section_name'] ) : '',
                 'subcategories' => isset( $_POST['subcategories'] ) ? array_map( 'intval', $_POST['subcategories'] ) : array(),
+                'link_url' => isset( $_POST['section_link_url'] ) ? esc_url_raw( $_POST['section_link_url'] ) : '',
+                'button_text' => isset( $_POST['section_button_text'] ) ? sanitize_text_field( $_POST['section_button_text'] ) : '',
                 'enabled' => isset( $_POST['section_enabled'] ) ? 1 : 0,
                 'default_open' => isset( $_POST['section_default_open'] ) ? 1 : 0,
                 'position' => isset( $_POST['section_position'] ) ? intval( $_POST['section_position'] ) : 0,
@@ -682,14 +686,31 @@ class FSM_Admin {
                         <input type="hidden" name="fsm_save_section" value="1">
                         <input type="hidden" name="section_id" value="<?php echo esc_attr( $edit_id ); ?>">
                         
+                        <?php
+                        $current_type = ( $edit_data && isset( $edit_data['type'] ) ) ? $edit_data['type'] : 'custom';
+                        ?>
                         <table class="form-table">
+                            <tr>
+                                <th scope="row">Szekció típusa</th>
+                                <td>
+                                    <label style="margin-right: 20px;">
+                                        <input type="radio" name="section_type" value="custom" id="fsm-type-custom" <?php checked( $current_type, 'custom' ); ?>>
+                                        Alkategória lista
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="section_type" value="featured_link" id="fsm-type-featured" <?php checked( $current_type, 'featured_link' ); ?>>
+                                        Kiemelt link (gombbal)
+                                    </label>
+                                    <p class="description">Az "Alkategória lista" egy lenyíló szekciót hoz létre. A "Kiemelt link" egy teljes szélességű gombot jelenít meg, amely egy megadott oldalra navigál.</p>
+                                </td>
+                            </tr>
                             <tr>
                                 <th scope="row"><label for="section_name">Szekció neve</label></th>
                                 <td>
                                     <input name="section_name" type="text" id="section_name" value="<?php echo $edit_data ? esc_attr( $edit_data['name'] ) : ''; ?>" class="regular-text" required>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="fsm-row-subcategories">
                                 <th scope="row"><label>Alkategóriák</label></th>
                                 <td>
                                     <div class="fsm-cat-selector">
@@ -707,6 +728,20 @@ class FSM_Admin {
                                         ?>
                                     </div>
                                     <p class="description">Válaszd ki, mely kategóriák jelenjenek meg ebben a szekcióban.</p>
+                                </td>
+                            </tr>
+                            <tr class="fsm-row-featured-link">
+                                <th scope="row"><label for="section_link_url">Link URL</label></th>
+                                <td>
+                                    <input name="section_link_url" type="url" id="section_link_url" value="<?php echo $edit_data ? esc_attr( $edit_data['link_url'] ?? '' ) : ''; ?>" class="regular-text" placeholder="https://...">
+                                    <p class="description">Az URL, ahová a gomb kattintáskor navigál. Lehet teljes URL (https://...) vagy relatív (/kategoria/).</p>
+                                </td>
+                            </tr>
+                            <tr class="fsm-row-featured-link">
+                                <th scope="row"><label for="section_button_text">Gomb szövege</label></th>
+                                <td>
+                                    <input name="section_button_text" type="text" id="section_button_text" value="<?php echo $edit_data ? esc_attr( $edit_data['button_text'] ?? '' ) : ''; ?>" class="regular-text" placeholder="Tovább">
+                                    <p class="description">A jobb oldalon megjelenő gomb felirata. Ha üresen hagyod, "Tovább" lesz.</p>
                                 </td>
                             </tr>
                             <tr>
@@ -756,6 +791,23 @@ class FSM_Admin {
                         </p>
                     </form>
                 </div>
+                <script>
+                (function() {
+                    function updateTypeVisibility() {
+                        var isFeatured = document.querySelector('[name="section_type"]:checked')?.value === 'featured_link';
+                        document.querySelectorAll('.fsm-row-subcategories').forEach(function(el) {
+                            el.style.display = isFeatured ? 'none' : '';
+                        });
+                        document.querySelectorAll('.fsm-row-featured-link').forEach(function(el) {
+                            el.style.display = isFeatured ? '' : 'none';
+                        });
+                    }
+                    document.querySelectorAll('[name="section_type"]').forEach(function(radio) {
+                        radio.addEventListener('change', updateTypeVisibility);
+                    });
+                    updateTypeVisibility();
+                })();
+                </script>
 
             <?php else : ?>
                 <!-- List View -->
@@ -768,14 +820,15 @@ class FSM_Admin {
                                 <tr>
                                     <th style="width: 30px;"></th> <!-- Drag handle -->
                                     <th>Név</th>
-                                    <th>Alkategóriák</th>
+                                    <th>Tartalom</th>
                                     <th style="width: 80px;">Pozíció</th>
                                     <th style="width: 80px;">Állapot</th>
                                     <th style="width: 150px;">Műveletek</th>
                                 </tr>
                             </thead>
                             <tbody id="fsm-sortable-list">
-                                <?php foreach ( $all_sections as $section ) : 
+                                <?php foreach ( $all_sections as $section ) :
+                                    $section_subtype = isset( $section['type'] ) ? $section['type'] : 'custom';
                                     $sub_count = isset( $section['subcategories'] ) ? count( $section['subcategories'] ) : 0;
                                     $is_enabled = ! empty( $section['enabled'] );
                                     $edit_url = add_query_arg( array( 'action' => 'edit', 'id' => $section['id'] ) );
@@ -785,8 +838,18 @@ class FSM_Admin {
                                         <td class="fsm-drag-handle" style="cursor: move; color: #aaa;">☰</td>
                                         <td>
                                             <strong><a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( $section['name'] ); ?></a></strong>
+                                            <?php if ( $section_subtype === 'featured_link' ) : ?>
+                                                <br><span style="font-size: 11px; background: #e5f5ff; color: #0073aa; padding: 1px 6px; border-radius: 3px;">Kiemelt link</span>
+                                            <?php endif; ?>
                                         </td>
-                                        <td><?php echo intval( $sub_count ); ?> db</td>
+                                        <td>
+                                            <?php if ( $section_subtype === 'featured_link' ) : ?>
+                                                <?php $link = isset( $section['link_url'] ) ? $section['link_url'] : ''; ?>
+                                                <?php echo $link ? '<a href="' . esc_url( $link ) . '" target="_blank" style="font-size:12px;">' . esc_html( $link ) . '</a>' : '<em style="color:#aaa;">nincs link</em>'; ?>
+                                            <?php else : ?>
+                                                <?php echo intval( $sub_count ); ?> alkategória
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?php echo intval( $section['position'] ); ?></td>
                                         <td>
                                             <button type="button" class="fsm-toggle-status button button-small <?php echo $is_enabled ? '' : 'button-link-delete'; ?>" data-id="<?php echo esc_attr( $section['id'] ); ?>">

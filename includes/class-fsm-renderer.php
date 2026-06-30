@@ -300,8 +300,12 @@ class FSM_Renderer {
 
         foreach ( $all_sections as $section ) {
             if ( $section['type'] === 'custom' ) {
-                // Render custom section
-                self::render_custom_section( $section['data'], $limit_mobile, $limit_desktop, $show_descriptions );
+                $subtype = isset( $section['data']['type'] ) ? $section['data']['type'] : 'custom';
+                if ( $subtype === 'featured_link' ) {
+                    self::render_featured_link_section( $section['data'] );
+                } else {
+                    self::render_custom_section( $section['data'], $limit_mobile, $limit_desktop, $show_descriptions );
+                }
             } else {
                 // Render automatic section
                 self::render_auto_section( $section['data'], $limit_mobile, $limit_desktop, $show_descriptions );
@@ -310,6 +314,40 @@ class FSM_Renderer {
 
         echo '</div>';
         return ob_get_clean();
+    }
+
+    /**
+     * Render a featured link section (single full-width link with a button badge)
+     */
+    private static function render_featured_link_section( array $section ) : void {
+        $section_id = isset( $section['id'] ) ? intval( $section['id'] ) : 0;
+        $section_name = isset( $section['name'] ) ? $section['name'] : '';
+        $link_url = isset( $section['link_url'] ) ? esc_url( $section['link_url'] ) : '';
+        $button_text = ( isset( $section['button_text'] ) && $section['button_text'] !== '' )
+            ? $section['button_text']
+            : 'Tovább';
+
+        if ( $link_url === '' ) {
+            return;
+        }
+
+        $style = '';
+        if ( ! empty( $section['bg_color'] ) ) {
+            $style .= '--fsm-main-bg:' . esc_attr( $section['bg_color'] ) . ';';
+            $style .= '--fsm-main-active-bg:' . esc_attr( $section['bg_color'] ) . ';';
+        }
+        if ( ! empty( $section['text_color'] ) ) {
+            $style .= '--fsm-main-text:' . esc_attr( $section['text_color'] ) . ';';
+            $style .= '--fsm-main-icon-text:' . esc_attr( $section['text_color'] ) . ';';
+        }
+        ?>
+        <section class="fsm-section fsm-section--featured-link" data-section-id="<?php echo esc_attr( $section_id ); ?>" style="<?php echo $style; ?>">
+            <a class="fsm-section__toggle fsm-featured-link" href="<?php echo $link_url; ?>">
+                <span class="fsm-section__title"><?php echo esc_html( $section_name ); ?></span>
+                <span class="fsm-featured-link__badge"><?php echo esc_html( $button_text ); ?> →</span>
+            </a>
+        </section>
+        <?php
     }
 
     /**
