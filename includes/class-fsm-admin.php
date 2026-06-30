@@ -707,7 +707,7 @@ class FSM_Admin {
                             <tr>
                                 <th scope="row"><label for="section_name">Szekció neve</label></th>
                                 <td>
-                                    <input name="section_name" type="text" id="section_name" value="<?php echo $edit_data ? esc_attr( $edit_data['name'] ) : ''; ?>" class="regular-text" required>
+                                    <input name="section_name" type="text" id="section_name" value="<?php echo $edit_data ? esc_attr( $edit_data['name'] ) : ''; ?>" class="regular-text">
                                 </td>
                             </tr>
                             <tr class="fsm-row-subcategories">

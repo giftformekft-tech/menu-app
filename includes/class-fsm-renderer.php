@@ -325,7 +325,7 @@ class FSM_Renderer {
         $link_url = isset( $section['link_url'] ) ? esc_url( $section['link_url'] ) : '';
         $button_text = ( isset( $section['button_text'] ) && $section['button_text'] !== '' )
             ? $section['button_text']
-            : 'Tovább';
+            : '';
 
         if ( $link_url === '' ) {
             return;
@@ -343,8 +343,12 @@ class FSM_Renderer {
         ?>
         <section class="fsm-section fsm-section--featured-link" data-section-id="<?php echo esc_attr( $section_id ); ?>" style="<?php echo $style; ?>">
             <a class="fsm-section__toggle fsm-featured-link" href="<?php echo $link_url; ?>">
-                <span class="fsm-section__title"><?php echo esc_html( $section_name ); ?></span>
-                <span class="fsm-featured-link__badge"><?php echo esc_html( $button_text ); ?> →</span>
+                <?php if ( $section_name !== '' ) : ?>
+                    <span class="fsm-section__title"><?php echo esc_html( $section_name ); ?></span>
+                <?php endif; ?>
+                <?php if ( $button_text !== '' ) : ?>
+                    <span class="fsm-featured-link__badge"><?php echo esc_html( $button_text ); ?> →</span>
+                <?php endif; ?>
             </a>
         </section>
         <?php
